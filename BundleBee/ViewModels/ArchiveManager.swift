@@ -11,7 +11,6 @@ import UniformTypeIdentifiers
 class ArchiveManager: ObservableObject {
     @Published var selectedFiles: [URL] = []
     @Published var selectedArchive: URL?
-    
     var appState: AppState? = nil
     
     func handleDrop(providers: [NSItemProvider]) -> Bool {
