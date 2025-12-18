@@ -8,9 +8,8 @@
 import SwiftUI
 
 struct CompressView: View {
+    @EnvironmentObject var appState: AppState
     @StateObject private var archiveManager = ArchiveManager()
-    @Binding var isDragging: Bool
-//    @State private var selectedFiles: [URL] = []
     @State private var compressionFormat: CompressionFormat = .zip
     @State private var usePassword = false
     @State private var password = ""
@@ -26,14 +25,13 @@ struct CompressView: View {
                 if archiveManager.selectedFiles.isEmpty {
                     DropZoneView(
                         archiveManager: archiveManager,
-                        isDragging: $isDragging,
-//                        selectedFiles: $selectedFiles,
                         isDecompression: false,
                         onFilesSelected: { urls in
                             print("SelectedFiles: \(urls.map { $0.lastPathComponent })")
                         }
                     )
                     .padding(.horizontal, 16)
+                    .environmentObject(appState)
                 } else {
                     ScrollView {
                         VStack(spacing: 16) {

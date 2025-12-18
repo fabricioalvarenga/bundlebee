@@ -9,22 +9,21 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct DropZoneView: View {
+    @EnvironmentObject var appState: AppState
     @ObservedObject var archiveManager: ArchiveManager
-    @Binding var isDragging: Bool
-//    @Binding var selectedFiles: [URL]
     var isDecompression: Bool = false
     var onFilesSelected: (([URL]) -> Void)?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             VStack(spacing: 20) {
-                Image(systemName: isDragging ? "arrow.down.circle.fill" : "arrow.down.doc.fill")
+                Image(systemName: appState.isDragging ? "arrow.down.circle.fill" : "arrow.down.doc.fill")
                     .font(.system(size: 64))
-                    .foregroundStyle(isDragging ? .blue : .secondary)
-                    .symbolEffect(.bounce, value: isDragging)
+                    .foregroundStyle(appState.isDragging ? .blue : .secondary)
+                    .symbolEffect(.bounce, value: appState.isDragging)
                 
                 VStack(spacing: 8) {
-                    Text(isDragging ? "Drop the files here" : "Drag the files here")
+                    Text(appState.isDragging ? "Drop the files here" : "Drag the files here")
                         .font(.title3)
                         .fontWeight(.medium)
                     
@@ -51,12 +50,12 @@ struct DropZoneView: View {
             .background(
                 RoundedRectangle(cornerRadius: 16)
                     .strokeBorder(
-                        isDragging ? Color.accentColor : Color.secondary.opacity(0.3),
+                        appState.isDragging ? Color.accentColor : Color.secondary.opacity(0.3),
                         style: StrokeStyle(lineWidth: 2, dash: [10, 5])
                     )
                     .background(
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(isDragging ? Color.accentColor.opacity(0.05) : Color.clear)
+                            .fill(appState.isDragging ? Color.accentColor.opacity(0.05) : Color.clear)
                     )
             )
             
@@ -69,7 +68,7 @@ struct DropZoneView: View {
             
         }
         .padding(.bottom, 16)
-        .onDrop(of: [.fileURL], isTargeted: $isDragging) { providers in
+        .onDrop(of: [.fileURL], isTargeted: $appState.isDragging) { providers in
             handleDrop(providers: providers)
         }
     }

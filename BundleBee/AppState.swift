@@ -8,9 +8,6 @@
 import Foundation
 
 class AppState: ObservableObject {
-    static let shared = AppState()
     @Published var selectedTab: TabType = .compress
     @Published var isDragging = false
-    
-    private init() {}
 }

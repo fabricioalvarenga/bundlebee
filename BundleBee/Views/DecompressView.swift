@@ -8,9 +8,8 @@
 import SwiftUI
 
 struct DecompressView: View {
+    @EnvironmentObject var appState: AppState
     @StateObject private var archiveManager = ArchiveManager()
-    @Binding var isDragging: Bool
-//    @State private var selectedArchive: URL?
     @State private var showingExtractionOptions = false
     
     var body: some View {
@@ -113,8 +112,6 @@ struct DecompressView: View {
                 VStack(spacing: 24) {
                     DropZoneView(
                         archiveManager: archiveManager,
-                        isDragging: $isDragging,
-//                        selectedFiles: .constant([]),
                         isDecompression: true,
                         onFilesSelected: { urls in
                             if let url = urls.first {
@@ -125,6 +122,7 @@ struct DecompressView: View {
                         }
                     )
                     .padding(.horizontal, 16)
+                    .environmentObject(appState)
                 }
             }
         }

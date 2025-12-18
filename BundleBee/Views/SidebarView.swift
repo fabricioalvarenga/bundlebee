@@ -1,5 +1,5 @@
 //
-//  SideBarContainerView.swift
+//  SidebarView.swift
 //  BundleBee
 //
 //  Created by FABRICIO ALVARENGA on 17/12/25.
@@ -7,16 +7,8 @@
 
 import SwiftUI
 
-struct SidebarContainerView: View {
-    @StateObject private var appState = AppState.shared
-    
-    var body: some View {
-        SidebarView(selectedTab: $appState.selectedTab)
-    }
-}
-
 struct SidebarView: View {
-    @Binding var selectedTab: TabType
+    @EnvironmentObject var appState: AppState
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -43,8 +35,8 @@ struct SidebarView: View {
             
             VStack(spacing: 4) {
                 ForEach(TabType.allCases, id: \.self) { tab in
-                    SidebarButton(title: tab.rawValue, icon: tab.icon, isSelected: selectedTab == tab) {
-                        selectedTab = tab
+                    SidebarButton(title: tab.rawValue, icon: tab.icon, isSelected: appState.selectedTab == tab) {
+                        appState.selectedTab = tab
                     }
                 }
             }
