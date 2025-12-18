@@ -110,20 +110,20 @@ struct DecompressView: View {
                 }
             } else {
                 VStack(spacing: 24) {
-                    DropZoneView(
-                        archiveManager: archiveManager,
-                        onFilesSelected: { urls in
-                            if let url = urls.first {
-                                archiveManager.selectedArchive = url
-                                showingExtractionOptions = true
-                                print("Selected archive: \(url.lastPathComponent)")
-                            }
+                    DropZoneView(archiveManager: archiveManager) { urls in
+                        if let url = urls.first {
+                            archiveManager.selectedArchive = url
+                            showingExtractionOptions = true
+                            print("Selected archive: \(url.lastPathComponent)")
                         }
-                    )
+                    }
                     .padding(.horizontal, 16)
                     .environmentObject(appState)
                 }
             }
+        }
+        .onAppear {
+            appState.isDecompression = true
         }
     }
 }
