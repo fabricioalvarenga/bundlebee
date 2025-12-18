@@ -8,8 +8,9 @@
 import SwiftUI
 
 struct DecompressView: View {
+    @StateObject private var archiveManager = ArchiveManager()
     @Binding var isDragging: Bool
-    @State private var selectedArchive: URL?
+//    @State private var selectedArchive: URL?
     @State private var showingExtractionOptions = false
     
     var body: some View {
@@ -19,7 +20,7 @@ struct DecompressView: View {
             Divider()
                 .padding(.vertical, 16)
             
-            if let archive = selectedArchive {
+            if let archive = archiveManager.selectedArchive {
                 ScrollView {
                     VStack(spacing: 16) {
                         GroupBox {
@@ -54,7 +55,7 @@ struct DecompressView: View {
                                     Spacer()
                                     
                                     Button {
-                                        selectedArchive = nil
+                                        archiveManager.selectedArchive = nil
                                         showingExtractionOptions = false
                                     } label: {
                                         Image(systemName: "xmark.circle.fill")
@@ -92,7 +93,7 @@ struct DecompressView: View {
                         
                         HStack(spacing: 12) {
                             Button("Cancel") {
-                                selectedArchive = nil
+                                archiveManager.selectedArchive = nil
                                 showingExtractionOptions = false
                             }
                             .buttonStyle(.bordered)
@@ -111,12 +112,13 @@ struct DecompressView: View {
             } else {
                 VStack(spacing: 24) {
                     DropZoneView(
+                        archiveManager: archiveManager,
                         isDragging: $isDragging,
-                        selectedFiles: .constant([]),
+//                        selectedFiles: .constant([]),
                         isDecompression: true,
                         onFilesSelected: { urls in
                             if let url = urls.first {
-                                selectedArchive = url
+                                archiveManager.selectedArchive = url
                                 showingExtractionOptions = true
                                 print("Selected archive: \(url.lastPathComponent)")
                             }

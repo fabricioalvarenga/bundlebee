@@ -8,8 +8,9 @@
 import SwiftUI
 
 struct CompressView: View {
+    @StateObject private var archiveManager = ArchiveManager()
     @Binding var isDragging: Bool
-    @State private var selectedFiles: [URL] = []
+//    @State private var selectedFiles: [URL] = []
     @State private var compressionFormat: CompressionFormat = .zip
     @State private var usePassword = false
     @State private var password = ""
@@ -22,10 +23,11 @@ struct CompressView: View {
                 .padding(.vertical, 16)
             
             VStack(spacing: 24) {
-                if selectedFiles.isEmpty {
+                if archiveManager.selectedFiles.isEmpty {
                     DropZoneView(
+                        archiveManager: archiveManager,
                         isDragging: $isDragging,
-                        selectedFiles: $selectedFiles,
+//                        selectedFiles: $selectedFiles,
                         isDecompression: false,
                         onFilesSelected: { urls in
                             print("SelectedFiles: \(urls.map { $0.lastPathComponent })")
@@ -71,7 +73,7 @@ struct CompressView: View {
                                         Label("Selected Files", systemImage: "doc.fill")
                                             .font(.headline)
                                         Spacer()
-                                        Text("\(selectedFiles.count)")
+                                        Text("\(archiveManager.selectedFiles.count)")
                                             .font(.caption)
                                             .padding(.horizontal, 8)
                                             .padding(.vertical, 4)
@@ -81,9 +83,9 @@ struct CompressView: View {
                                     
                                     Divider()
                                     
-                                    ForEach(selectedFiles, id: \.self) { file in
+                                    ForEach(archiveManager.selectedFiles, id: \.self) { file in
                                         FileRowView(url: file) {
-                                            selectedFiles.removeAll { $0 == file }
+                                            archiveManager.selectedFiles.removeAll { $0 == file }
                                         }
                                     }
                                 }
@@ -92,7 +94,7 @@ struct CompressView: View {
                             
                             HStack(spacing: 12) {
                                 Button("Clean") {
-                                    selectedFiles.removeAll()
+                                    archiveManager.selectedFiles.removeAll()
                                     password = ""
                                     usePassword = false
                                 }
@@ -102,10 +104,10 @@ struct CompressView: View {
                                 
                                 Button("Compress") {
                                     // TODO: Implement compression (Passo 5)
-                                    print("Compress: \(selectedFiles.count) files into the format \(compressionFormat.rawValue)")
+                                    print("Compress: \(archiveManager.selectedFiles.count) files into the format \(compressionFormat.rawValue)")
                                 }
                                 .buttonStyle(.borderedProminent)
-                                .disabled(selectedFiles.isEmpty)
+                                .disabled(archiveManager.selectedFiles.isEmpty)
                             }
                         }
                         .padding(.horizontal, 32)

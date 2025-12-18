@@ -9,8 +9,9 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct DropZoneView: View {
+    @ObservedObject var archiveManager: ArchiveManager
     @Binding var isDragging: Bool
-    @Binding var selectedFiles: [URL]
+//    @Binding var selectedFiles: [URL]
     var isDecompression: Bool = false
     var onFilesSelected: (([URL]) -> Void)?
     
@@ -99,7 +100,7 @@ struct DropZoneView: View {
                 if isDecompression {
                     onFilesSelected?([urls.first!])
                 } else {
-                    selectedFiles.append(contentsOf: urls)
+                    archiveManager.selectedFiles.append(contentsOf: urls)
                     onFilesSelected?(urls)
                 }
             }
@@ -130,7 +131,7 @@ struct DropZoneView: View {
                 if isDecompression {
                     onFilesSelected?(urls)
                 } else {
-                    selectedFiles.append(contentsOf: urls)
+                    archiveManager.selectedFiles.append(contentsOf: urls)
                     onFilesSelected?(urls)
                 }
             }
