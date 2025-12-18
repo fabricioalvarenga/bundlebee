@@ -1,0 +1,27 @@
+//
+//  HeaderView.swift
+//  BundleBee
+//
+//  Created by FABRICIO ALVARENGA on 17/12/25.
+//
+
+import SwiftUI
+
+struct HeaderView: View {
+    let title: String
+    let subtitle: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.title2)
+                .fontWeight(.semibold)
+            Text(subtitle)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(20)
+        .background(Color(nsColor: .controlBackgroundColor))
+    }
+}
