@@ -19,9 +19,10 @@ struct CompressView: View {
             HeaderView(title: "Compress Files", subtitle: "Add files to create a compressed archive")
             
             Divider()
+                .padding(.vertical, 16)
             
-            ScrollView {
-                VStack(spacing: 24) {
+            VStack(spacing: 24) {
+                if selectedFiles.isEmpty {
                     DropZoneView(
                         isDragging: $isDragging,
                         selectedFiles: $selectedFiles,
@@ -30,10 +31,9 @@ struct CompressView: View {
                             print("SelectedFiles: \(urls.map { $0.lastPathComponent })")
                         }
                     )
-                    .padding(.horizontal, 32)
-                    .padding(.top, 32)
-                    
-                    if !selectedFiles.isEmpty {
+                    .padding(.horizontal, 16)
+                } else {
+                    ScrollView {
                         VStack(spacing: 16) {
                             GroupBox {
                                 VStack(alignment: .leading, spacing: 12) {

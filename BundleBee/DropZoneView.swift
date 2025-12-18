@@ -15,41 +15,59 @@ struct DropZoneView: View {
     var onFilesSelected: (([URL]) -> Void)?
     
     var body: some View {
-        VStack(spacing: 20) {
-            Image(systemName: isDragging ? "arrow.down.circle.fill" : "arrow.down.doc.fill")
-                .font(.system(size: 64))
-                .foregroundStyle(isDragging ? .blue : .secondary)
-                .symbolEffect(.bounce, value: isDragging)
-            
-            VStack(spacing: 8) {
-                Text(isDragging ? "Drop the files here" : "Drag the files here")
-                    .font(.title3)
-                    .fontWeight(.medium)
+        VStack(alignment: .leading, spacing: 0) {
+            VStack(spacing: 20) {
+                Image(systemName: isDragging ? "arrow.down.circle.fill" : "arrow.down.doc.fill")
+                    .font(.system(size: 64))
+                    .foregroundStyle(isDragging ? .blue : .secondary)
+                    .symbolEffect(.bounce, value: isDragging)
                 
-                Text(isDecompression ? "or click to select a compressed archive" : "or click to select files")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                VStack(spacing: 8) {
+                    Text(isDragging ? "Drop the files here" : "Drag the files here")
+                        .font(.title3)
+                        .fontWeight(.medium)
+                    
+                    Text(isDecompression ? "or click the \"Select Archive\" button below" : "or click the \"Select Files\" button bellow")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                
+                if isDecompression {
+                    GroupBox {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Label("Suported Formats", systemImage: "info.circle")
+                                .font(.headline)
+                            
+                            Text("ZIP • GZIP • RAR • 7Z • TAR • TAR.GZ")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(4)
+                    }
+                }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .strokeBorder(
+                        isDragging ? Color.accentColor : Color.secondary.opacity(0.3),
+                        style: StrokeStyle(lineWidth: 2, dash: [10, 5])
+                    )
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(isDragging ? Color.accentColor.opacity(0.05) : Color.clear)
+                    )
+            )
             
             Button(isDecompression ? "Select Archive" : "Select Files") {
                 selectFiles(allowMultiple: !isDecompression)
             }
             .buttonStyle(.bordered)
             .controlSize(.large)
+            .padding(.top, 8)
+            
         }
-        .frame(maxWidth: .infinity)
-        .padding(60)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .strokeBorder(
-                    isDragging ? Color.accentColor : Color.secondary.opacity(0.3),
-                    style: StrokeStyle(lineWidth: 2, dash: [10, 5])
-                )
-                .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(isDragging ? Color.accentColor.opacity(0.05) : Color.clear)
-                )
-        )
+        .padding(.bottom, 16)
         .onDrop(of: [.fileURL], isTargeted: $isDragging) { providers in
             handleDrop(providers: providers)
         }

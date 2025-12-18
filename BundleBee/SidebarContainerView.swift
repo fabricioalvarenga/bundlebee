@@ -20,36 +20,30 @@ struct SidebarView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 8) {
-                    Image(systemName: "archivebox.circle.fill")
-                        .font(.system(size: 32))
-                        .foregroundStyle(.blue.gradient)
+            HStack(spacing: 8) {
+                Image(systemName: "archivebox.circle.fill")
+                    .font(.system(size: 32))
+                    .foregroundStyle(.blue.gradient)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Archive")
+                        .font(.title2)
+                        .fontWeight(.bold)
                     
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Archive")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                        Text("Manager")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
+                    Text("Manager")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, 20)
-                .padding(.bottom, 8)
             }
+            .padding(.horizontal, 16)
+            .padding(.top, 16)
             
             Divider()
-                .padding(.vertical, 12)
+                .padding(.vertical, 16)
             
             VStack(spacing: 4) {
                 ForEach(TabType.allCases, id: \.self) { tab in
-                    SidebarButton(
-                        title: tab.rawValue,
-                        icon: tab.icon,
-                        isSelected: selectedTab == tab
-                    ) {
+                    SidebarButton(title: tab.rawValue, icon: tab.icon, isSelected: selectedTab == tab) {
                         selectedTab = tab
                     }
                 }
@@ -64,9 +58,11 @@ struct SidebarView: View {
                 HStack {
                     Image(systemName: "info.circle")
                         .foregroundStyle(.secondary)
+                    
                     Text("v1.0.0")
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                    
                     Spacer()
                 }
                 .padding(.horizontal, 16)

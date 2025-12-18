@@ -10,18 +10,14 @@ import SwiftUI
 struct ViewArchiveView: View {
     var body: some View {
         VStack(spacing: 0) {
-            HeaderView(
-                title: "View Content",
-                subtitle: "Explore the contents of the compressed archive"
-            )
+            HeaderView(title: "View Content", subtitle: "Explore the contents of the compressed archive")
             
             Divider()
+                .padding(.vertical, 12)
             
-            ContentUnavailableView(
-                "No archive selected",
-                systemImage: "doc.text.magnifyingglass",
-                description: Text("Drag and drop an archive to view its contents")
-            )
+            ContentUnavailableView("No archive selected", systemImage: "doc.text.magnifyingglass", description: Text("Drag and drop an archive to view its contents"))
+            
+            Spacer()
         }
     }
 }

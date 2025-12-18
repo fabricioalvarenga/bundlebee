@@ -19,6 +19,7 @@ struct FileRowView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(url.lastPathComponent)
                     .font(.subheadline)
+                
                 Text(url.path)
                     .font(.caption)
                     .foregroundStyle(.secondary)

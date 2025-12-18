@@ -16,12 +16,14 @@ struct HeaderView: View {
             Text(title)
                 .font(.title2)
                 .fontWeight(.semibold)
+            
             Text(subtitle)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(20)
+        .padding(.horizontal, 16)
+        .padding(.top, 16)
         .background(Color(nsColor: .controlBackgroundColor))
     }
 }
