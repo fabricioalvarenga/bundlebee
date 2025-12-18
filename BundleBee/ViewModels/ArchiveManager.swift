@@ -9,62 +9,48 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 class ArchiveManager: ObservableObject {
-    @EnvironmentObject private var appState: AppState
     @Published var selectedFiles: [URL] = []
     @Published var selectedArchive: URL?
     
-    func handleDrop(providers: [NSItemProvider], onFilesSelected: (([URL]) -> Void)?) -> Bool {
+    var appState: AppState? = nil
+    
+    func handleDrop(providers: [NSItemProvider]) -> Bool {
         var urls: [URL] = []
         let group = DispatchGroup()
         
         for provider in providers {
             group.enter()
-            _ = provider.loadObject(ofClass: URL.self) { [weak self] url, error in
+            
+            _ = provider.loadObject(ofClass: URL.self) { url, error in
                 defer { group.leave() }
-                
-                guard let self else { return }
-                
-                if let url {
-                    if self.appState.isDecompression {
-                        if isArchiveFile(url) {
-                            urls.append(url)
-                        }
-                    } else {
-                        urls.append(url)
-                    }
-                }
+                guard let url else { return }
+                urls.append(url)
             }
         }
         
         group.notify(queue: .main) { [weak self] in
             guard let self else { return }
-            
-            if !urls.isEmpty {
-                if self.appState.isDecompression {
-                    onFilesSelected?([urls.first!])
-                } else {
-                    self.selectedFiles.append(contentsOf: urls)
-                    onFilesSelected?(urls)
-                }
-            }
+            self.handleSelectedFiles(urls)
         }
         
         return true
     }
     
-    func selectFiles(allowMultiple: Bool, onFilesSelected: (([URL]) -> Void)?) {
+    func selectFiles() {
+        guard let appState else { return }
+        
         let panel = NSOpenPanel()
-        panel.allowsMultipleSelection = allowMultiple
+        
+        panel.allowsMultipleSelection = !appState.isDecompression
         panel.canChooseDirectories = !appState.isDecompression
         panel.canChooseFiles = true
         
         if appState.isDecompression {
             panel.allowedContentTypes = [
-                .zip, .gzip,
+                .zip, .gzip, .tarArchive,
                 UTType(filenameExtension: "rar") ?? .data,
                 UTType(filenameExtension: "7z") ?? .data,
-                UTType(filenameExtension: "tar") ?? .data,
-                UTType(filenameExtension: "tar.gz") ?? .data
+                UTType(filenameExtension: "tgz") ?? .data
             ]
         }
         
@@ -72,22 +58,25 @@ class ArchiveManager: ObservableObject {
             guard let self else { return }
             
             if response == .OK {
-                let urls = panel.urls
-                if self.appState.isDecompression {
-                    onFilesSelected?(urls)
-                } else {
-                    self.selectedFiles.append(contentsOf: urls)
-                    onFilesSelected?(urls)
-                }
+                self.handleSelectedFiles(panel.urls)
+            }
+        }
+    }
+    
+    private func handleSelectedFiles(_ urls: [URL]) {
+        guard let appState else { return }
+        
+        if !urls.isEmpty {
+            selectedFiles = urls
+            if appState.isDecompression {
+                selectedArchive = selectedFiles.filter { isArchiveFile($0) }.first
             }
         }
     }
     
     private func isArchiveFile(_ url: URL) -> Bool {
-        let archiveExtensions = ["zip", "gzip", "rar", "7z", "tar", "tar.gz"]
+        let archiveExtensions = ["zip", "gzip", "rar", "7z", "tar", "tgz"]
         let ext = url.pathExtension.lowercased()
         return archiveExtensions.contains(ext)
     }
-    
-    
 }

@@ -13,5 +13,5 @@ enum CompressionFormat: String, CaseIterable {
     case rar = "RAR"
     case sevenZip = "7Z"
     case tar = "TAR"
-    case tarGz = "TAR.GZ"
+    case tarGz = "TGZ"
 }

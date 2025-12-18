@@ -23,9 +23,7 @@ struct CompressView: View {
             
             VStack(spacing: 24) {
                 if archiveManager.selectedFiles.isEmpty {
-                    DropZoneView(archiveManager: archiveManager) { urls in
-                        print("SelectedFiles: \(urls.map { $0.lastPathComponent })")
-                    }
+                    DropZoneView(archiveManager: archiveManager)
                     .padding(.horizontal, 16)
                     .environmentObject(appState)
                 } else {
@@ -111,6 +109,7 @@ struct CompressView: View {
             }
         }
         .onAppear {
+            archiveManager.appState = appState
             appState.isDecompression = false
         }
     }
