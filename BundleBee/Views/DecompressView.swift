@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct DecompressView: View {
-    @EnvironmentObject var appState: AppState
+    @EnvironmentObject private var appState: AppState
     @StateObject private var archiveManager = ArchiveManager()
     @State private var showingExtractionOptions = false
     

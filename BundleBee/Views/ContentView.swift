@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: NSViewControllerRepresentable {
-    @EnvironmentObject var appState: AppState
+    @EnvironmentObject private var appState: AppState
     
     func makeNSViewController(context: Context) -> CustomSplitViewController {
         let splitVC = CustomSplitViewController()

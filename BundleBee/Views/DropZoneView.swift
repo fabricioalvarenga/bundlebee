@@ -9,10 +9,10 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct DropZoneView: View {
-    @EnvironmentObject var appState: AppState
+    @EnvironmentObject private var appState: AppState
     @ObservedObject var archiveManager: ArchiveManager
     var onFilesSelected: (([URL]) -> Void)?
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             VStack(spacing: 20) {
@@ -141,4 +141,6 @@ struct DropZoneView: View {
         let ext = url.pathExtension.lowercased()
         return archiveExtensions.contains(ext)
     }
+    
+    
 }

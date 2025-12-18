@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SidebarView: View {
-    @EnvironmentObject var appState: AppState
+    @EnvironmentObject private var appState: AppState
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
