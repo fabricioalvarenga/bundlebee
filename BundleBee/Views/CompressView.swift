@@ -25,7 +25,6 @@ struct CompressView: View {
                 if archiveManager.selectedFiles.isEmpty {
                     DropZoneView(
                         archiveManager: archiveManager,
-                        isDecompression: false,
                         onFilesSelected: { urls in
                             print("SelectedFiles: \(urls.map { $0.lastPathComponent })")
                         }

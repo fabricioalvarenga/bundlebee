@@ -11,7 +11,6 @@ import UniformTypeIdentifiers
 struct DropZoneView: View {
     @EnvironmentObject var appState: AppState
     @ObservedObject var archiveManager: ArchiveManager
-    var isDecompression: Bool = false
     var onFilesSelected: (([URL]) -> Void)?
     
     var body: some View {
@@ -27,12 +26,12 @@ struct DropZoneView: View {
                         .font(.title3)
                         .fontWeight(.medium)
                     
-                    Text(isDecompression ? "or click the \"Select Archive\" button below" : "or click the \"Select Files\" button bellow")
+                    Text(appState.isDecompression ? "or click the \"Select Archive\" button below" : "or click the \"Select Files\" button bellow")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
                 
-                if isDecompression {
+                if appState.isDecompression {
                     GroupBox {
                         VStack(alignment: .leading, spacing: 12) {
                             Label("Suported Formats", systemImage: "info.circle")
@@ -59,8 +58,8 @@ struct DropZoneView: View {
                     )
             )
             
-            Button(isDecompression ? "Select Archive" : "Select Files") {
-                selectFiles(allowMultiple: !isDecompression)
+            Button(appState.isDecompression ? "Select Archive" : "Select Files") {
+                selectFiles(allowMultiple: !appState.isDecompression)
             }
             .buttonStyle(.bordered)
             .controlSize(.large)
@@ -83,7 +82,7 @@ struct DropZoneView: View {
                 defer { group.leave() }
                 
                 if let url = url {
-                    if isDecompression {
+                    if appState.isDecompression {
                         if isArchiveFile(url) {
                             urls.append(url)
                         }
@@ -96,7 +95,7 @@ struct DropZoneView: View {
         
         group.notify(queue: .main) {
             if !urls.isEmpty {
-                if isDecompression {
+                if appState.isDecompression {
                     onFilesSelected?([urls.first!])
                 } else {
                     archiveManager.selectedFiles.append(contentsOf: urls)
@@ -111,10 +110,10 @@ struct DropZoneView: View {
     private func selectFiles(allowMultiple: Bool) {
         let panel = NSOpenPanel()
         panel.allowsMultipleSelection = allowMultiple
-        panel.canChooseDirectories = !isDecompression
+        panel.canChooseDirectories = !appState.isDecompression
         panel.canChooseFiles = true
         
-        if isDecompression {
+        if appState.isDecompression {
             panel.allowedContentTypes = [
                 .zip, .gzip,
                 UTType(filenameExtension: "rar") ?? .data,
@@ -127,7 +126,7 @@ struct DropZoneView: View {
         panel.begin { response in
             if response == .OK {
                 let urls = panel.urls
-                if isDecompression {
+                if appState.isDecompression {
                     onFilesSelected?(urls)
                 } else {
                     archiveManager.selectedFiles.append(contentsOf: urls)

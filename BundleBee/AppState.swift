@@ -10,4 +10,5 @@ import Foundation
 class AppState: ObservableObject {
     @Published var selectedTab: TabType = .compress
     @Published var isDragging = false
+    var isDecompression = false
 }

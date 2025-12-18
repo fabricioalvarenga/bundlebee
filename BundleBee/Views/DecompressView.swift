@@ -112,7 +112,6 @@ struct DecompressView: View {
                 VStack(spacing: 24) {
                     DropZoneView(
                         archiveManager: archiveManager,
-                        isDecompression: true,
                         onFilesSelected: { urls in
                             if let url = urls.first {
                                 archiveManager.selectedArchive = url
