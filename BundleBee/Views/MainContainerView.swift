@@ -18,6 +18,7 @@ struct MainContentView: View {
                     .environmentObject(appState)
             case .decompress:
                 DecompressView()
+                    .environmentObject(appState)
             case .view:
                 ViewArchiveView()
             case .history:
