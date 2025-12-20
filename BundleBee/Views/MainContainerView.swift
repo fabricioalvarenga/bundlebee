@@ -9,15 +9,16 @@ import SwiftUI
 
 struct MainContentView: View {
     @EnvironmentObject private var appState: AppState
+    @StateObject private var archiveManager = ArchiveManager()
     
     var body: some View {
         ZStack {
             switch appState.selectedTab {
             case .compress:
-                CompressView()
+                CompressView(archiveManager: archiveManager)
                     .environmentObject(appState)
             case .decompress:
-                DecompressView()
+                DecompressView(archiveManager: archiveManager)
                     .environmentObject(appState)
             case .view:
                 ViewArchiveView()

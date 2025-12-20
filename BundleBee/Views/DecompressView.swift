@@ -9,7 +9,7 @@ import SwiftUI
 
 struct DecompressView: View {
     @EnvironmentObject private var appState: AppState
-    @StateObject private var archiveManager = ArchiveManager()
+    @ObservedObject var archiveManager = ArchiveManager()
     @State private var showingExtractionOptions = false // TODO: Verificar se essa variável realmente está sendo usada
     
     var body: some View {

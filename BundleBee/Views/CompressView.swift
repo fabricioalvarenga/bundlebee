@@ -9,7 +9,7 @@ import SwiftUI
 
 struct CompressView: View {
     @EnvironmentObject private var appState: AppState
-    @StateObject private var archiveManager = ArchiveManager()
+    @ObservedObject var archiveManager: ArchiveManager
     @State private var compressionFormat: CompressionFormat = .zip
     @State private var usePassword = false
     @State private var password = ""
