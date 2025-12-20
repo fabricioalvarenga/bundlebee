@@ -10,7 +10,7 @@ import SwiftUI
 struct DecompressView: View {
     @EnvironmentObject private var appState: AppState
     @StateObject private var archiveManager = ArchiveManager()
-    @State private var showingExtractionOptions = false
+    @State private var showingExtractionOptions = false // TODO: Verificar se essa variável realmente está sendo usada
     
     var body: some View {
         VStack(spacing: 0) {
@@ -116,9 +116,21 @@ struct DecompressView: View {
                 }
             }
         }
-        .onAppear {
-            archiveManager.appState = appState
+        .onReceive(NotificationCenter.default.publisher(for: .openArchiveFile)) { notification in
             appState.isDecompression = true
+            if let archive = notification.object as? URL {
+                archiveManager.selectedArchive = archive
+                showingExtractionOptions = true
+                appState.pendingArchiveToOpen = nil
+            }
+        }
+        .onAppear {
+            appState.isDecompression = true
+            if let pending = appState.pendingArchiveToOpen {
+                archiveManager.selectedArchive = pending
+                showingExtractionOptions = true
+                appState.pendingArchiveToOpen = nil
+            }
         }
     }
 }

@@ -11,7 +11,7 @@ import UniformTypeIdentifiers
 class ArchiveManager: ObservableObject {
     @Published var selectedFiles: [URL] = []
     @Published var selectedArchive: URL?
-    var appState: AppState? = nil
+    private var appState = AppState.shared
     
     func handleDrop(providers: [NSItemProvider]) -> Bool {
         var urls: [URL] = []
@@ -36,8 +36,6 @@ class ArchiveManager: ObservableObject {
     }
     
     func selectFiles() {
-        guard let appState else { return }
-        
         let panel = NSOpenPanel()
         
         panel.allowsMultipleSelection = !appState.isDecompression
@@ -53,7 +51,7 @@ class ArchiveManager: ObservableObject {
             ]
         }
         
-        panel.begin { [weak self] response in
+        panel.begin { [weak self] response in // TODO: Fazer esse painel aparecer como "modal"
             guard let self else { return }
             
             if response == .OK {
@@ -63,8 +61,6 @@ class ArchiveManager: ObservableObject {
     }
     
     private func handleSelectedFiles(_ urls: [URL]) {
-        guard let appState else { return }
-        
         if !urls.isEmpty {
             selectedFiles = urls
             if appState.isDecompression {

@@ -108,9 +108,19 @@ struct CompressView: View {
                 }
             }
         }
-        .onAppear {
-            archiveManager.appState = appState
+        .onReceive(NotificationCenter.default.publisher(for: .openFilesToCompress)) { notification in
             appState.isDecompression = false
+            if let files = notification.object as? [URL] {
+                archiveManager.selectedFiles.append(contentsOf: files)
+                appState.pendingFilesToCompress = nil
+            }
+        }
+        .onAppear {
+            appState.isDecompression = false
+            if let pending = appState.pendingFilesToCompress {
+                archiveManager.selectedFiles.append(contentsOf: pending)
+                appState.pendingFilesToCompress = nil
+            }
         }
     }
 }

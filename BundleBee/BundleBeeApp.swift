@@ -6,13 +6,15 @@
 //
 
 import SwiftUI
+import AppKit
 
 @main
 struct BundleBeeApp: App {
-    @StateObject private var appState = AppState()
+    @NSApplicationDelegateAdaptor private var appDelegate: AppDelegate
+    @StateObject private var appState = AppState.shared
     
     var body: some Scene {
-        WindowGroup {
+        Window("", id: "BundleBee") {
             ContentView()
                 .environmentObject(appState)
         }
@@ -21,5 +23,6 @@ struct BundleBeeApp: App {
             CommandGroup(replacing: .newItem) {}
             SidebarCommands()
         }
+        .handlesExternalEvents(matching: Set(arrayLiteral: "*"))
     }
 }

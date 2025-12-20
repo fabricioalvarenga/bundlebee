@@ -10,7 +10,6 @@ import SwiftUI
 struct DropZoneView: View {
     @EnvironmentObject private var appState: AppState
     @ObservedObject var archiveManager: ArchiveManager
-//    var onFilesSelected: (([URL]) -> Void)?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -58,7 +57,6 @@ struct DropZoneView: View {
             )
             
             Button(appState.isDecompression ? "Select Archive" : "Select Files") {
-//                archiveManager.selectFiles(onFilesSelected: onFilesSelected)
                 archiveManager.selectFiles()
             }
             .buttonStyle(.bordered)
@@ -67,11 +65,7 @@ struct DropZoneView: View {
             
         }
         .padding(.bottom, 16)
-        .onAppear {
-            archiveManager.appState = appState
-        }
         .onDrop(of: [.fileURL], isTargeted: $appState.isDragging) { providers in
-//            archiveManager.handleDrop(providers: providers, onFilesSelected: onFilesSelected)
             archiveManager.handleDrop(providers: providers)
         }
     }

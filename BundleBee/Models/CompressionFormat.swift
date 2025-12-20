@@ -8,10 +8,14 @@
 import Foundation
 
 enum CompressionFormat: String, CaseIterable {
-    case zip = "ZIP"
-    case gzip = "GZIP"
-    case rar = "RAR"
-    case sevenZip = "7Z"
-    case tar = "TAR"
-    case tarGz = "TGZ"
+    case zip = "zip"
+    case gzip = "gzip"
+    case rar = "rar"
+    case sevenZip = "7z"
+    case tar = "tar"
+    case tarGz = "tgz"
+    
+    static var archiveExtensions: [String] {
+        Array(CompressionFormat.allCases).map(\.rawValue)
+    }
 }
