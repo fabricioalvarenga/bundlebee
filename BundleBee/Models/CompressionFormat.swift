@@ -14,6 +14,7 @@ enum CompressionFormat: String, CaseIterable {
     case sevenZip = "7z"
     case tar = "tar"
     case tarGz = "tgz"
+    case bz2 = "bz2"
     
     static var archiveExtensions: [String] {
         Array(CompressionFormat.allCases).map(\.rawValue)
