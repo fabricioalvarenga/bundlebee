@@ -12,18 +12,23 @@ struct HeaderView: View {
     let subtitle: String
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-                .font(.title2)
-                .fontWeight(.semibold)
+        VStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                
+                Text(subtitle)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 16)
+            .padding(.top, 16)
+            .background(Color(nsColor: .controlBackgroundColor))
             
-            Text(subtitle)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+            Divider()
+                .padding(.vertical, 16)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 16)
-        .padding(.top, 16)
-        .background(Color(nsColor: .controlBackgroundColor))
     }
 }

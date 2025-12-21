@@ -14,17 +14,17 @@ struct DropZoneView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             VStack(spacing: 20) {
-                arrowImage
-                dropText
+                arrowImageView
+                dropTextView
                 
                 if appState.isDecompression {
-                    suportedFiles
+                    suportedFilesView
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(dropZonebackground)
+            .background(backgroundView)
             
-            selectButton
+            selectButtonView
         }
         .padding(.bottom, 16)
         .onDrop(of: [.fileURL], isTargeted: $appState.isDragging) { providers in
@@ -32,7 +32,7 @@ struct DropZoneView: View {
         }
     }
     
-    var arrowImage: some View {
+    var arrowImageView: some View {
         Image(systemName: appState.isDragging ? "arrow.down.circle.fill" : "arrow.down.doc.fill")
             .font(.system(size: 64))
             .foregroundStyle(appState.isDragging ? .blue : .secondary)
@@ -40,7 +40,7 @@ struct DropZoneView: View {
         
     }
     
-    var dropText: some View {
+    var dropTextView: some View {
         VStack(spacing: 8) {
             Text(appState.isDragging ? "Drop the files here" : "Drag the files here")
                 .font(.title3)
@@ -53,7 +53,7 @@ struct DropZoneView: View {
         
     }
     
-    var suportedFiles: some View {
+    var suportedFilesView: some View {
         GroupBox {
             VStack(alignment: .leading, spacing: 12) {
                 Label("Suported Formats", systemImage: "info.circle")
@@ -67,7 +67,7 @@ struct DropZoneView: View {
         }
     }
     
-    var dropZonebackground: some View {
+    var backgroundView: some View {
         RoundedRectangle(cornerRadius: 16)
             .strokeBorder(
                 appState.isDragging ? Color.accentColor : Color.secondary.opacity(0.3),
@@ -80,7 +80,7 @@ struct DropZoneView: View {
         
     }
     
-    var selectButton: some View {
+    var selectButtonView: some View {
         Button(appState.isDecompression ? "Select Archive" : "Select Files") {
             archiveManager.selectFiles()
         }
