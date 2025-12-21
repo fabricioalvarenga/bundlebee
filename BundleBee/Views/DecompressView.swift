@@ -119,17 +119,15 @@ struct DecompressView: View {
         .onReceive(NotificationCenter.default.publisher(for: .openArchiveFile)) { notification in
             appState.isDecompression = true
             if let archive = notification.object as? URL {
-                archiveManager.selectedArchive = archive
+                archiveManager.handleSelectedFiles(Array(arrayLiteral: archive))
                 showingExtractionOptions = true
-                appState.pendingArchiveToOpen = nil
             }
         }
         .onAppear {
             appState.isDecompression = true
             if let pending = appState.pendingArchiveToOpen {
-                archiveManager.selectedArchive = pending
+                archiveManager.handleSelectedFiles(Array(arrayLiteral: pending))
                 showingExtractionOptions = true
-                appState.pendingArchiveToOpen = nil
             }
         }
     }

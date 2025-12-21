@@ -6,17 +6,31 @@
 	<array>
 		<dict>
 			<key>CFBundleTypeName</key>
-			<string>All Files</string>
+			<string>Zip files</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
-				<string>public.data</string>
-				<string>public.fold</string>
-				<string>public.item</string>
+				<string>public.zip-archive</string>
 			</array>
+			<key>NSDocumentClass</key>
+			<string></string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>All Files</string>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 			<key>LSHandlerRank</key>
 			<string>Alternate</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>public.data</string>
+				<string>public.folder</string>
+				<string>public.item</string>
+			</array>
 		</dict>
 	</array>
 </dict>

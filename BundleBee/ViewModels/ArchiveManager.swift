@@ -44,7 +44,7 @@ class ArchiveManager: ObservableObject {
         
         if appState.isDecompression {
             panel.allowedContentTypes = [
-                .zip, .gzip, .tarArchive,
+                .zip, .gzip, .tarArchive, .bz2,
                 UTType(filenameExtension: "rar") ?? .data,
                 UTType(filenameExtension: "7z") ?? .data,
                 UTType(filenameExtension: "tgz") ?? .data
@@ -60,17 +60,24 @@ class ArchiveManager: ObservableObject {
         }
     }
     
-    private func handleSelectedFiles(_ urls: [URL]) {
+    func handleSelectedFiles(_ urls: [URL]) {
         if !urls.isEmpty {
+            appState.pendingArchiveToOpen = nil
+            appState.pendingFilesToCompress?.removeAll()
             selectedFiles = urls
+            
             if appState.isDecompression {
-                selectedArchive = selectedFiles.filter { isArchiveFile($0) }.first
+                selectedArchive = urls.filter { isArchiveFile($0) }.first
+                selectedFiles.removeAll()
+            } else {
+                selectedArchive = nil
+                selectedFiles = urls
             }
         }
     }
     
     private func isArchiveFile(_ url: URL) -> Bool {
-        let archiveExtensions = ["zip", "gzip", "rar", "7z", "tar", "tgz"]
+        let archiveExtensions = CompressionFormat.archiveExtensions
         let ext = url.pathExtension.lowercased()
         return archiveExtensions.contains(ext)
     }
