@@ -14,15 +14,15 @@ struct DropZoneView: View {
     var body: some View {
         ZStack {
             VStack(spacing: 20) {
-                if (appState.isDecompression && archiveManager.selectedArchive == nil) || (!appState.isDecompression && archiveManager.selectedFiles.isEmpty) {
-                    arrowImageView
-                    dropTextView
-                    
-                    if appState.isDecompression {
-                        supportedFilesView
-                    }
-                }
+                let opacity = (appState.isDecompression && archiveManager.selectedArchive == nil) || (!appState.isDecompression && archiveManager.selectedFiles.isEmpty) ? 1.0 : 0.0
                 
+                dropTextView
+                    .opacity(opacity)
+                    .frame(height: opacity == 0.0 ? 0 : nil)
+
+                supportedFilesView
+                    .opacity(opacity == 1.0 && appState.isDecompression ? 1.0 : 0.0)
+                    .frame(height: opacity == 1.0 && appState.isDecompression ? nil : 0)
             }
             
             backgroundView
@@ -32,16 +32,13 @@ struct DropZoneView: View {
         }
     }
     
-    var arrowImageView: some View {
-        Image(systemName: appState.isDragging ? "arrow.down.circle.fill" : "arrow.down.doc.fill")
+    var dropTextView: some View {
+        VStack(spacing: 8) {
+            Image(systemName: appState.isDragging ? "arrow.down.circle.fill" : "arrow.down.doc.fill")
             .font(.system(size: 64))
             .foregroundStyle(appState.isDragging ? Color.accentColor : .secondary)
             .symbolEffect(.bounce, value: appState.isDragging)
-        
-    }
-    
-    var dropTextView: some View {
-        VStack(spacing: 8) {
+
             Text(appState.isDragging ? (appState.isDecompression ? "Drop the archive here" : "Drop the files here") : (appState.isDecompression ? "Drag the archive here" : "Drag the files here"))
                 .font(.title3)
                 .fontWeight(.medium)

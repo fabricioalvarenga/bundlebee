@@ -8,8 +8,13 @@
 import SwiftUI
 
 struct FileRowView: View {
-    let url: URL
-    let onRemove: () -> Void
+    private let url: URL
+    private let onRemove: () -> Void
+    
+    init(url: URL?, onRemove: @escaping () -> Void) {
+        self.url = url ?? URL(fileURLWithPath: "")
+        self.onRemove = onRemove
+    }
 
     var body: some View {
         HStack(spacing: 12) {

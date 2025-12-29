@@ -69,7 +69,6 @@ struct CompressView: View {
         }
         .font(.title)
         .fontWeight(.semibold)
-
     }
 
     private var selectedFilesView: some View {
@@ -178,7 +177,4 @@ struct CompressView: View {
         .disabled(archiveManager.selectedFiles.isEmpty)
         .help("Clear selection")
     }
-    
-    
-    
 }
