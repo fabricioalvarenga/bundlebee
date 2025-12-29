@@ -34,8 +34,8 @@ struct SidebarView: View {
                 .padding(.vertical, 16)
             
             VStack(spacing: 4) {
-                ForEach(TabType.allCases, id: \.self) { tab in
-                    SidebarButton(title: tab.rawValue, icon: tab.icon, isSelected: appState.selectedTab == tab) {
+                ForEach(TabType.allCases) { tab in
+                    SidebarButton(title: tab.id, icon: tab.icon, isSelected: appState.selectedTab == tab) {
                         appState.selectedTab = tab
                     }
                 }
@@ -43,24 +43,8 @@ struct SidebarView: View {
             .padding(.horizontal, 8)
             
             Spacer()
-            
-            VStack(spacing: 8) {
-                Divider()
-                
-                HStack {
-                    Image(systemName: "info.circle")
-                        .foregroundStyle(.secondary)
-                    
-                    Text("v1.0.0")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    
-                    Spacer()
-                }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 12)
-            }
         }
+        .frame(minWidth: 200)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(nsColor: .controlBackgroundColor))
     }

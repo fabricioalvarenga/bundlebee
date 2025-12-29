@@ -8,139 +8,82 @@
 import SwiftUI
 
 struct DecompressView: View {
+    @Environment(\.colorScheme) private var colorScheme
+    @EnvironmentObject private var archiveManager: ArchiveManager
     @EnvironmentObject private var appState: AppState
-    @ObservedObject var archiveManager = ArchiveManager()
-    @State private var showingExtractionOptions = false // TODO: Verificar se essa variável realmente está sendo usada
-    
+    @State private var scale = 1.0
+
     var body: some View {
-        VStack(spacing: 0) {
-            HeaderView(title: "Decompress Archive",subtitle: "Drag and drop a compressed archive to extract it")
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Spacer()
+                headerView
+                Spacer()
+            }
             
-            if let archive = archiveManager.selectedArchive {
-                ScrollView {
-                    VStack(spacing: 16) {
-                        GroupBox {
-                            VStack(alignment: .leading, spacing: 12) {
-                                selectedArchiveHeaderView
-                               
-                                Divider()
-                                
-                                fileRowView(file: archive)
-                                    .padding(8)
-                                    .background(Color(nsColor: .controlBackgroundColor))
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                            }
-                            .padding(4)
-                        }
-                        
-                        extractionDestinationView
-                        extractButtonView(file: archive)
-                    }
-                    .padding(.horizontal, 16)
-                }
-            } else {
-                VStack(spacing: 24) {
-                    DropZoneView(archiveManager: archiveManager)
-                    .padding(.horizontal, 16)
+            ZStack {
+                DropZoneView()
+                    .environmentObject(archiveManager)
                     .environmentObject(appState)
+                
+                if let archive = archiveManager.selectedArchive {
+                    FileRowView(url: archive) {
+                        archiveManager.selectedArchive = nil
+                    }
                 }
             }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .openArchiveFile)) { notification in
-            appState.isDecompression = true
-            if let archive = notification.object as? URL {
-                archiveManager.handleSelectedFiles(Array(arrayLiteral: archive))
-                showingExtractionOptions = true
-            }
+            
+            Divider()
+                .foregroundStyle(colorScheme == .dark ? .white.opacity(0.5) : .black.opacity(0.5))
+            
+            destinationFolder
         }
         .onAppear {
             appState.isDecompression = true
-            if let pending = appState.pendingArchiveToOpen {
-                archiveManager.handleSelectedFiles(Array(arrayLiteral: pending))
-                showingExtractionOptions = true
-            }
         }
     }
     
-    var selectedArchiveHeaderView: some View {
-        Label("Selected Archive", systemImage: "archivebox.fill")
-            .font(.headline)
+    private var headerView: some View {
+        HStack {
+            Text(archiveManager.selectedArchive == nil ? "No Archive Selected" : "Archive Selected")
+                .scaleEffect(scale)
+                .onChange(of: archiveManager.selectedArchive) { _, _ in
+                    withAnimation(.spring(duration: 0.5)) {
+                        scale = 1.3
+                    }
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        withAnimation(.spring(duration: 0.5)) {
+                            scale = 1.0
+                        }
+                    }
+                }
+        }
+        .font(.title)
+        .fontWeight(.semibold)
     }
-    
-    func fileRowView(file archive: URL) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: "doc.zipper")
-                .font(.system(size: 40))
-                .foregroundStyle(.blue)
+   
+    private var destinationFolder: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Label("Destination Folder", systemImage: "folder")
+                .font(.headline)
+                .labelStyle(.titleAndIcon)
             
-            VStack(alignment: .leading, spacing: 4) {
-                Text(archive.lastPathComponent)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                
-                Text(archive.deletingLastPathComponent().path)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-                
-                if let fileSize = try? FileManager.default.attributesOfItem(atPath: archive.path)[.size] as? Int64 {
-                    Text(ByteCountFormatter.string(fromByteCount: fileSize, countStyle: .file))
-                        .font(.caption2)
+            HStack {
+                if let folder = archiveManager.decompressionDestinationFolder?.path {
+                    Text(folder)
+                        .lineLimit(1)
                         .foregroundStyle(.secondary)
                 }
-            }
-            
-            Spacer()
-            
-            Button {
-                archiveManager.selectedArchive = nil
-                showingExtractionOptions = false
-            } label: {
-                Image(systemName: "xmark.circle.fill")
-                    .foregroundStyle(.secondary)
-            }
-            .buttonStyle(.plain)
-        }
-    }
-    
-    var extractionDestinationView: some View {
-        GroupBox {
-            VStack(alignment: .leading, spacing: 12) {
-                Label("Extraction Destination", systemImage: "folder.fill")
-                    .font(.headline)
                 
-                HStack {
-                    Text("Same folder as de file")
-                        .font(.subheadline)
-                    
-                    Spacer()
-                    
-                    Button("Choose Folder...") {
-                        // TODO: Implement folder picker (Passo 4)
-                    }
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
+                Spacer()
+                
+                Button {
+                    archiveManager.selectDestinationFolder()
+                } label: {
+                    Image(systemName: "ellipsis")
                 }
             }
-            .padding(4)
-        }
-    }
-    
-    func extractButtonView(file archive: URL) -> some View {
-        HStack(spacing: 12) {
-            Button("Cancel") {
-                archiveManager.selectedArchive = nil
-                showingExtractionOptions = false
-            }
-            .buttonStyle(.bordered)
-            
-            Spacer()
-            
-            Button("Extract") {
-                // TODO: Implement extraction (Passo 4)
-                print("Extract: \(archive.lastPathComponent)")
-            }
-            .buttonStyle(.borderedProminent)
         }
     }
 }

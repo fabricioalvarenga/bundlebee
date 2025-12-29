@@ -29,9 +29,9 @@ struct SidebarButton: View {
             .padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(isSelected ? Color.accentColor.opacity(0.15) : Color.clear)
+                    .fill(isSelected ? Color.accentColor : .clear)
             )
-            .foregroundStyle(isSelected ? .primary : .secondary)
+            .foregroundStyle(isSelected ? .white : .secondary)
             .contentShape(.rect)
         }
         .buttonStyle(.plain)

@@ -10,24 +10,36 @@ import SwiftUI
 struct FileRowView: View {
     let url: URL
     let onRemove: () -> Void
-    
+
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: "doc.fill")
-                .foregroundStyle(.blue)
-            
+            Image(systemName: "doc")  // TODO: Mostrar um tipo de ícone para cada tipo de arquivo
+                .font(.system(size: 40))
+                .foregroundStyle(Color.accentColor)
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(url.lastPathComponent)
                     .font(.subheadline)
-                
-                Text(url.path)
+
+                Text(url.deletingLastPathComponent().path)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
+
+                if let fileSize = try? FileManager.default.attributesOfItem(
+                    atPath: url.path)[.size] as? Int64
+                {
+                    Text(
+                        ByteCountFormatter.string(
+                            fromByteCount: fileSize, countStyle: .file)
+                    )
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                }
             }
-            
+
             Spacer()
-            
+
             Button {
                 onRemove()
             } label: {
@@ -36,8 +48,7 @@ struct FileRowView: View {
             }
             .buttonStyle(.plain)
         }
-        .padding(8)
-        .background(Color(nsColor: .controlBackgroundColor))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
     }
 }

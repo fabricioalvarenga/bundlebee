@@ -7,129 +7,177 @@
 
 import SwiftUI
 
+// TODO: Use password to compress
 struct CompressView: View {
+    @Environment(\.colorScheme) private var colorScheme
+    @EnvironmentObject private var archiveManager: ArchiveManager
     @EnvironmentObject private var appState: AppState
-    @ObservedObject var archiveManager: ArchiveManager
-    @State private var compressionFormat: CompressionFormat = .zip
-    @State private var usePassword = false
-    @State private var password = ""
-    
+    @State private var scale = 1.0
+
     var body: some View {
-        VStack(spacing: 0) {
-            HeaderView(title: "Compress Files", subtitle: "Add files to create a compressed archive")
-            
-            VStack(spacing: 24) {
-                if archiveManager.selectedFiles.isEmpty {
-                    DropZoneView(archiveManager: archiveManager)
-                        .padding(.horizontal, 16)
-                        .environmentObject(appState)
-                } else {
-                    ScrollView {
-                        VStack(spacing: 16) {
-                            selectedFilesView
-                            compressFormatView
-                            passwordView
-                            compressButtonView
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 16)
-                    }
-                }
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Spacer()
+                headerView
+                Spacer()
             }
+                
+            ZStack {
+                DropZoneView()
+                    .environmentObject(archiveManager)
+                    .environmentObject(appState)
+
+                selectedFilesView
+            }
+
+            Divider()
+                .foregroundStyle(colorScheme == .dark ? .white.opacity(0.5) : .black.opacity(0.5))
+
+            destinationFolder
         }
-        .onReceive(NotificationCenter.default.publisher(for: .openFilesToCompress)) { notification in
-            appState.isDecompression = false
-            if let files = notification.object as? [URL] {
-                archiveManager.handleSelectedFiles(files)
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                trashButton
             }
+            
+            ToolbarItemGroup(placement: .secondaryAction) {
+                toolbarItems
+            }
+            
         }
         .onAppear {
             appState.isDecompression = false
-            if let pending = appState.pendingFilesToCompress {
-                archiveManager.handleSelectedFiles(pending)
-            }
         }
     }
-    
-    var compressFormatView: some View {
-        GroupBox {
-            VStack(alignment: .leading, spacing: 12) {
-                Label("Compression Format", systemImage: "archivebox")
-                    .font(.headline)
-                
-                Picker("", selection: $compressionFormat) {
-                    ForEach(CompressionFormat.allCases, id: \.self) { format in
-                        Text(format.rawValue).tag(format)
+
+    private var headerView: some View {
+        HStack {
+            Text(archiveManager.selectedFiles.isEmpty ? "No File Selected" : "\(archiveManager.selectedFiles.count) Files Selected")
+                .scaleEffect(scale)
+                .onChange(of: archiveManager.selectedFiles.count) { _, _ in
+                    withAnimation(.spring(duration: 0.5)) {
+                        scale = 1.3
+                    }
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        withAnimation(.spring(duration: 0.5)) {
+                            scale = 1.0
+                        }
                     }
                 }
-                .pickerStyle(.segmented)
-            }
-            .padding(4)
         }
+        .font(.title)
+        .fontWeight(.semibold)
+
     }
-    
-    var passwordView: some View {
-        GroupBox {
-            VStack(alignment: .leading, spacing: 12) {
-                Toggle(isOn: $usePassword) {
-                    Label("Protect with password", systemImage: "lock.fill")
-                        .font(.headline)
-                }
-                
-                if usePassword {
-                    SecureField("Enter the password", text: $password)
-                        .textFieldStyle(.roundedBorder)
-                }
-            }
-            .padding(4)
-        }
-    }
-    
-    var selectedFilesView: some View {
-        GroupBox {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Label("Selected Files", systemImage: "doc.fill")
-                        .font(.headline)
-                    Spacer()
-                    Text("\(archiveManager.selectedFiles.count)")
-                        .font(.caption)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.accentColor.opacity(0.2))
-                        .clipShape(Capsule())
-                }
-                
-                Divider()
-                
+
+    private var selectedFilesView: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
                 ForEach(archiveManager.selectedFiles, id: \.self) { file in
                     FileRowView(url: file) {
                         archiveManager.selectedFiles.removeAll { $0 == file }
                     }
                 }
             }
-            .padding(4)
+        }
+        .padding(8)
+    }
+
+    private var destinationFolder: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Label("Destination Folder", systemImage: "folder")
+                .font(.headline)
+                .labelStyle(.titleAndIcon)
+            
+            HStack {
+                if let folder = archiveManager.compressionDestinationFolder?.path {
+                    Text(folder)
+                        .lineLimit(1)
+                        .foregroundStyle(.secondary)
+                }
+                
+                Spacer()
+                
+                Button {
+                    archiveManager.selectDestinationFolder()
+                } label: {
+                    Image(systemName: "ellipsis")
+                }
+            }
         }
     }
     
-    var compressButtonView: some View {
-        HStack(spacing: 12) {
-            Button("Clean") {
-                archiveManager.selectedFiles.removeAll()
-                password = ""
-                usePassword = false
+    private var toolbarItems: some View {
+        HStack {
+            Button {
+                archiveManager.selectFiles()
+            } label: {
+                Image(systemName: "doc.badge.plus")
             }
-            .buttonStyle(.bordered)
+            .help("Select files")
             
-            Spacer()
+            Menu {
+                Section("Select compression format") {
+                    ForEach(CompressionFormat.allCases) { format in
+                        Button {
+                            archiveManager.selectedCompressionFormat = format
+                        } label: {
+                            // TODO: Alinhar os textos
+                            HStack {
+                                if archiveManager.selectedCompressionFormat == format {
+                                    Image(systemName: "checkmark")
+                                }
+                                
+                                Text(format.id.uppercased())
+                            }
+                        }
+                    }
+                }
+                
+                Section("Select compression mode") {
+                    ForEach(CompressionMode.allCases) { mode in
+                        Button {
+                            archiveManager.selectedCompressionMode = mode
+                        } label: {
+                            // TODO: Alinhar os textos
+                            HStack {
+                                if archiveManager.selectedCompressionMode == mode {
+                                    Image(systemName: "checkmark")
+                                }
+                                
+                                Text(mode.id)
+                            }
+                        }
+                    }
+                }
+            } label: {
+                Image(systemName: "ellipsis.circle")
+            }
+            .help("Compression format and mode")
             
-            Button("Compress") {
+            Button {
                 // TODO: Implement compression (Passo 5)
-                print("Compress: \(archiveManager.selectedFiles.count) files into the format \(compressionFormat.rawValue)")
+            } label: {
+                HStack {
+                    Image(systemName: "doc.zipper")
+                }
             }
-            .buttonStyle(.borderedProminent)
             .disabled(archiveManager.selectedFiles.isEmpty)
+            .help("Compress selected files")
         }
-        
     }
+    
+    private var trashButton: some View {
+        Button {
+            archiveManager.selectedFiles.removeAll()
+        } label: {
+            Image(systemName: "trash")
+        }
+        .disabled(archiveManager.selectedFiles.isEmpty)
+        .help("Clear selection")
+    }
+    
+    
+    
 }

@@ -11,6 +11,10 @@ import UniformTypeIdentifiers
 class ArchiveManager: ObservableObject {
     @Published var selectedFiles: [URL] = []
     @Published var selectedArchive: URL?
+    @Published var selectedCompressionFormat: CompressionFormat = .zip
+    @Published var selectedCompressionMode: CompressionMode = .fast
+    @Published var compressionDestinationFolder = FileManager.default.urls(for: .documentationDirectory, in: .userDomainMask).first
+    @Published var decompressionDestinationFolder = FileManager.default.urls(for: .documentationDirectory, in: .userDomainMask).first
     private var appState = AppState.shared
     
     func handleDrop(providers: [NSItemProvider]) -> Bool {
@@ -51,12 +55,35 @@ class ArchiveManager: ObservableObject {
             ]
         }
         
-        panel.begin { [weak self] response in // TODO: Fazer esse painel aparecer como "modal"
-            guard let self else { return }
-            
-            if response == .OK {
-                self.handleSelectedFiles(panel.urls)
-            }
+        let response = panel.runModal()
+        
+        if response == .OK {
+            self.handleSelectedFiles(panel.urls)
+        }
+    }
+    
+    func selectDestinationFolder() {
+        let panel = NSOpenPanel()
+        
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = false
+        panel.canCreateDirectories = true
+        
+        let response = panel.runModal()
+        
+        let folder: URL?
+        
+        if response == .OK {
+            folder = panel.url
+        } else {
+            folder = FileManager.default.urls(for: .documentationDirectory, in: .userDomainMask).first
+        }
+        
+        if appState.isDecompression {
+            decompressionDestinationFolder = folder
+        } else {
+            compressionDestinationFolder = folder
         }
     }
     
@@ -64,14 +91,13 @@ class ArchiveManager: ObservableObject {
         if !urls.isEmpty {
             appState.pendingArchiveToOpen = nil
             appState.pendingFilesToCompress?.removeAll()
-            selectedFiles = urls
             
             if appState.isDecompression {
                 selectedArchive = urls.filter { isArchiveFile($0) }.first
-                selectedFiles.removeAll()
             } else {
-                selectedArchive = nil
-                selectedFiles = urls
+                // Filters out all existing files in 'selectedFiles' so that they are not selected more than once.
+                let filteredUrls = urls.filter { !selectedFiles.contains($0) }
+                selectedFiles.append(contentsOf: filteredUrls)
             }
         }
     }

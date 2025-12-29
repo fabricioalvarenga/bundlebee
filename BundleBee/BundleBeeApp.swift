@@ -8,14 +8,17 @@
 import SwiftUI
 import AppKit
 
+// TODO: Configurar cores no modo escuro
+
 @main
 struct BundleBeeApp: App {
-    @NSApplicationDelegateAdaptor private var appDelegate: AppDelegate
     @StateObject private var appState = AppState.shared
-    
+    @StateObject private var archiveManager = ArchiveManager()
+
     var body: some Scene {
         Window("", id: "BundleBee") {
             ContentView()
+                .environmentObject(archiveManager)
                 .environmentObject(appState)
         }
         .windowStyle(.hiddenTitleBar)
@@ -23,6 +26,5 @@ struct BundleBeeApp: App {
             CommandGroup(replacing: .newItem) {}
             SidebarCommands()
         }
-        .handlesExternalEvents(matching: Set(arrayLiteral: "*"))
     }
 }
