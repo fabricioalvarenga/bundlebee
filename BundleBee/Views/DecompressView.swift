@@ -23,6 +23,7 @@ struct DecompressView: View {
             
             ZStack {
                 DropZoneView()
+                    .frame(height: archiveManager.selectedArchive == nil ? 220 : 56)
                     .environmentObject(archiveManager)
                     .environmentObject(appState)
                 

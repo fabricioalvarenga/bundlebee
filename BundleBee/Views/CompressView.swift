@@ -24,6 +24,7 @@ struct CompressView: View {
                 
             ZStack {
                 DropZoneView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .environmentObject(archiveManager)
                     .environmentObject(appState)
 
