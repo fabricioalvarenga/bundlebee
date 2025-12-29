@@ -12,21 +12,19 @@ struct DropZoneView: View {
     @EnvironmentObject private var archiveManager: ArchiveManager
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            VStack(spacing: 20) {
-                if (appState.isDecompression && archiveManager.selectedArchive == nil) || (!appState.isDecompression && archiveManager.selectedFiles.isEmpty) {
-                    arrowImageView
-                    dropTextView
-                    
-                    if appState.isDecompression {
-                        supportedFilesView
-                    }
-                }
+        VStack(spacing: 20) {
+            if (appState.isDecompression && archiveManager.selectedArchive == nil) || (!appState.isDecompression && archiveManager.selectedFiles.isEmpty) {
+                arrowImageView
+                dropTextView
                 
+                if appState.isDecompression {
+                    supportedFilesView
+                }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(backgroundView)
+            
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(backgroundView)
         .onDrop(of: [.fileURL], isTargeted: $appState.isDragging) { providers in
             archiveManager.handleDrop(providers: providers)
         }
@@ -75,6 +73,5 @@ struct DropZoneView: View {
                 RoundedRectangle(cornerRadius: 8)
                     .fill(appState.isDragging ? Color.accentColor.opacity(0.05) : .clear)
             )
-        
     }
 }

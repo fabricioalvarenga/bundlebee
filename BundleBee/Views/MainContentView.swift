@@ -24,7 +24,6 @@ struct MainContentView: View {
             
             StainView()
             
-//            GlassCardView(title: "Compress", icon: "archivebox") {
             GlassCardView {
                 switch appState.selectedTab {
                 case .compress:
