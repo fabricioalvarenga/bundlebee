@@ -40,7 +40,6 @@ struct MainContentView: View {
                     HistoryView()
                 }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding()
         }
     }
