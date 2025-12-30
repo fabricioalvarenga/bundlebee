@@ -12,8 +12,8 @@ struct DecompressView: View {
     @EnvironmentObject private var archiveManager: ArchiveManager
     @EnvironmentObject private var appState: AppState
     @State private var scale: CGFloat = 1.0
-    @State private var frameHeight: CGFloat = 220
-
+    @State private var frameHeight: CGFloat = 0.0
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
@@ -46,6 +46,10 @@ struct DecompressView: View {
 
             destinationFolder
         }
+        .onAppear {
+            appState.isDecompression = true
+            frameHeight = archiveManager.selectedArchive == nil ? 220 : 56
+        }
         .toolbar {
             CustomToolbar<ExtractOption, ExtractOption>(
                 mainActionButtonHelp: "Extract selected archive",
@@ -59,9 +63,6 @@ struct DecompressView: View {
                 selectButtonAction: { archiveManager.selectFiles() },
                 trashButtonAction: { archiveManager.selectedArchive = nil }
             )
-        }
-        .onAppear {
-            appState.isDecompression = true
         }
     }
 

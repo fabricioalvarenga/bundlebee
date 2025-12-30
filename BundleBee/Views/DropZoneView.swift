@@ -13,9 +13,9 @@ struct DropZoneView: View {
 
     var body: some View {
         ZStack {
+            let opacity = (appState.isDecompression && archiveManager.selectedArchive == nil) || (!appState.isDecompression && archiveManager.selectedFiles.isEmpty) ? 1.0 : 0.0
+            
             VStack(spacing: 20) {
-                let opacity = (appState.isDecompression && archiveManager.selectedArchive == nil) || (!appState.isDecompression && archiveManager.selectedFiles.isEmpty) ? 1.0 : 0.0
-                
                 dropTextView
                     .opacity(opacity)
                     .frame(height: opacity == 0.0 ? 0 : nil)
@@ -47,7 +47,6 @@ struct DropZoneView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
-        
     }
     
     var supportedFilesView: some View {
