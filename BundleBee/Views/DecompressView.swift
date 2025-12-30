@@ -46,6 +46,20 @@ struct DecompressView: View {
 
             destinationFolder
         }
+        .toolbar {
+            CustomToolbar<ExtractOption, ExtractOption>(
+                mainActionButtonHelp: "Extract selected archive",
+                mainActionButtonDisabled: archiveManager.selectedArchive == nil,
+                selectButtonHelp: "Select archive",
+                selectedItemOfFirstMenuSection: .empty,
+                selectedItemOfSecondMenuSection: .empty,
+                trashButonHelp: "Clear selection",
+                trashButtonDisabled: archiveManager.selectedArchive == nil,
+                mainActionButtonAction: { archiveManager.extract() },
+                selectButtonAction: { archiveManager.selectFiles() },
+                trashButtonAction: { archiveManager.selectedArchive = nil }
+            )
+        }
         .onAppear {
             appState.isDecompression = true
         }

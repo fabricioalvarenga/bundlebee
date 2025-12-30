@@ -7,28 +7,20 @@
 
 import Foundation
 
-enum CompressionFormat: Identifiable, CaseIterable{
-    case zip
-    case gzip
-    case rar
-    case sevenZip
-    case tar
-    case tarGz
-    case bz2
+enum CompressionFormat: String, Identifiable, CaseIterable {
+    case zip = "Zip"
+    case gzip = "Gzip"
+    case rar = "Rar"
+    case sevenZip = "7z"
+    case tar = "Tar"
+    case tarGz = "Tgz"
+    case bz2 = "Bz2"
     
     var id: String {
-        switch self {
-        case .zip: "zip"
-        case .gzip: "gzip"
-        case .rar: "rar"
-        case .sevenZip: "7z"
-        case .tar: "tar"
-        case .tarGz: "tgz"
-        case .bz2: "bz2"
-        }
+        self.rawValue
     }
     
     static var archiveExtensions: [String] {
-        Array(CompressionFormat.allCases).map(\.id)
+        Array(CompressionFormat.allCases).map { $0.rawValue }
     }
 }

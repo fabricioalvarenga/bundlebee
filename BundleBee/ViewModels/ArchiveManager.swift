@@ -102,9 +102,15 @@ class ArchiveManager: ObservableObject {
         }
     }
     
+    func compress() {
+    }
+    
+    func extract() {
+    }
+    
     private func isArchiveFile(_ url: URL) -> Bool {
         let archiveExtensions = CompressionFormat.archiveExtensions
-        let ext = url.pathExtension.lowercased()
+        let ext = url.pathExtension.capitalized
         return archiveExtensions.contains(ext)
     }
 }

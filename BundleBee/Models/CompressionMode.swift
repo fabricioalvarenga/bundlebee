@@ -7,18 +7,13 @@
 
 import Foundation
 
-enum CompressionMode: Identifiable, CaseIterable {
-    case fast
-    case normal
-    case best
+enum CompressionMode: String, Identifiable, CaseIterable {
+    case fast = "Fast"
+    case normal = "Normal"
+    case best = "Best"
     
     var id: String {
-        switch self {
-        case .fast: "Fast"
-        case .normal: "Normal"
-        case .best: "Best"
-        }
-       
+        self.rawValue
     }
     static var compressMode: [String] {
         Array(CompressionMode.allCases).map(\.id)

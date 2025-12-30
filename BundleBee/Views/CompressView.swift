@@ -37,14 +37,24 @@ struct CompressView: View {
             destinationFolder
         }
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                trashButton
-            }
-            
-            ToolbarItemGroup(placement: .secondaryAction) {
-                toolbarItems
-            }
-            
+            CustomToolbar<CompressionFormat, CompressionMode>(
+                mainActionButtonHelp: "Compress selected files",
+                mainActionButtonDisabled: archiveManager.selectedFiles.isEmpty,
+                selectButtonHelp: "Select files",
+                menuHelp: "Select compression format and mode",
+                menuDisabled: false,
+                titleOfFirstMenuSection: "Select compression format",
+                selectedItemOfFirstMenuSection: .zip,
+                titleOfSecondMenuSection: "Select compression mode",
+                selectedItemOfSecondMenuSection: .fast,
+                trashButonHelp: "Clear selection",
+                trashButtonDisabled: archiveManager.selectedFiles.isEmpty,
+                mainActionButtonAction: { archiveManager.compress() },
+                selectButtonAction: { archiveManager.selectFiles() },
+                trashButtonAction: { archiveManager.selectedFiles.removeAll() },
+                onSelectItemOfFirstMenuSection: { archiveManager.selectedCompressionFormat = $0 },
+                onSelectItemOfSecondMenuSection: { archiveManager.selectedCompressionMode = $0 }
+            )
         }
         .onAppear {
             appState.isDecompression = false
@@ -106,75 +116,5 @@ struct CompressView: View {
                 }
             }
         }
-    }
-    
-    private var toolbarItems: some View {
-        HStack {
-            Button {
-                archiveManager.selectFiles()
-            } label: {
-                Image(systemName: "doc.badge.plus")
-            }
-            .help("Select files")
-            
-            Menu {
-                Section("Select compression format") {
-                    ForEach(CompressionFormat.allCases) { format in
-                        Button {
-                            archiveManager.selectedCompressionFormat = format
-                        } label: {
-                            // TODO: Alinhar os textos
-                            HStack {
-                                if archiveManager.selectedCompressionFormat == format {
-                                    Image(systemName: "checkmark")
-                                }
-                                
-                                Text(format.id.uppercased())
-                            }
-                        }
-                    }
-                }
-                
-                Section("Select compression mode") {
-                    ForEach(CompressionMode.allCases) { mode in
-                        Button {
-                            archiveManager.selectedCompressionMode = mode
-                        } label: {
-                            // TODO: Alinhar os textos
-                            HStack {
-                                if archiveManager.selectedCompressionMode == mode {
-                                    Image(systemName: "checkmark")
-                                }
-                                
-                                Text(mode.id)
-                            }
-                        }
-                    }
-                }
-            } label: {
-                Image(systemName: "ellipsis.circle")
-            }
-            .help("Compression format and mode")
-            
-            Button {
-                // TODO: Implement compression (Passo 5)
-            } label: {
-                HStack {
-                    Image(systemName: "doc.zipper")
-                }
-            }
-            .disabled(archiveManager.selectedFiles.isEmpty)
-            .help("Compress selected files")
-        }
-    }
-    
-    private var trashButton: some View {
-        Button {
-            archiveManager.selectedFiles.removeAll()
-        } label: {
-            Image(systemName: "trash")
-        }
-        .disabled(archiveManager.selectedFiles.isEmpty)
-        .help("Clear selection")
     }
 }

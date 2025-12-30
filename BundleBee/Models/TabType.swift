@@ -7,27 +7,22 @@
 
 import Foundation
 
-enum TabType: CaseIterable, Identifiable {
-    case compress
-    case decompress
-    case view
-    case history
+enum TabType: String, CaseIterable, Identifiable {
+    case compress = "Compress"
+    case decompress = "Decompress"
+    case view = "View"
+    case history = "History"
     
     var id: String {
-        switch self {
-        case .compress: "Compress"
-        case .decompress: "Decompress"
-        case .view: "View"
-        case .history: "History"
-        }
+        self.rawValue
     }
     
     var icon: String {
         switch self {
-        case .compress: return "archivebox.fill"
-        case .decompress: return "arrow.up.doc.fill"
-        case .view: return "doc.text.magnifyingglass"
-        case .history: return "clock.fill"
+        case .compress: "archivebox.fill"
+        case .decompress: "arrow.up.doc.fill"
+        case .view: "doc.text.magnifyingglass"
+        case .history: "clock.fill"
         }
     }
 }

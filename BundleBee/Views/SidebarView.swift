@@ -35,7 +35,7 @@ struct SidebarView: View {
             
             VStack(spacing: 4) {
                 ForEach(TabType.allCases) { tab in
-                    SidebarButton(title: tab.id, icon: tab.icon, isSelected: appState.selectedTab == tab) {
+                    SidebarButton(title: tab.rawValue, icon: tab.icon, isSelected: appState.selectedTab == tab) {
                         appState.selectedTab = tab
                     }
                 }
