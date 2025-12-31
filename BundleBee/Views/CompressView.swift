@@ -16,12 +16,8 @@ struct CompressView: View {
     @State private var scale = 1.0
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Spacer()
-                headerView
-                Spacer()
-            }
+        VStack(spacing: 16) {
+            headerView
                 
             DropZoneView(makeDropZoneVisible: fileService.selectedFiles.isEmpty) {
                 selectedFilesView
