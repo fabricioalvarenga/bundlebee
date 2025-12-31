@@ -7,29 +7,48 @@
 
 import SwiftUI
 
-struct DropZoneView: View {
+struct DropZoneView<Content: View>: View {
     @EnvironmentObject private var appState: AppState
     @EnvironmentObject private var fileService: FileService
-
+    @State var makeDropZoneVisible: Bool
+    
+    @ViewBuilder
+    let content: () -> Content
+    
     var body: some View {
         ZStack {
-            let opacity = (appState.isDecompression && fileService.selectedArchive == nil) || (!appState.isDecompression && fileService.selectedFiles.isEmpty) ? 1.0 : 0.0
-            
             VStack(spacing: 20) {
                 dropTextView
-                    .opacity(opacity)
-                    .frame(height: opacity == 0.0 ? 0 : nil)
+                    .opacity(makeDropZoneVisible ? 1.0 : 0.0)
+                    .frame(height: makeDropZoneVisible ? nil : 0)
 
                 supportedFilesView
-                    .opacity(opacity == 1.0 && appState.isDecompression ? 1.0 : 0.0)
-                    .frame(height: opacity == 1.0 && appState.isDecompression ? nil : 0)
+                    .opacity(makeDropZoneVisible && appState.isDecompression ? 1.0 : 0.0)
+                    .frame(height: makeDropZoneVisible && appState.isDecompression ? nil : 0)
             }
             
-            backgroundView
+            
+            content()
         }
+        .frame(maxWidth: .infinity)
+        .background(backgroundView)
         .onDrop(of: [.fileURL], isTargeted: $appState.isDragging) { providers in
             fileService.handleDrop(providers: providers)
         }
+        .onChange(of: appState.isDecompression) {
+            withAnimation {
+                updateDropZoneVisibility()
+            }
+        }
+        .onChange(of: fileService.selectedArchive) {
+            withAnimation {
+                updateDropZoneVisibility()
+            }
+        }
+    }
+    
+    func updateDropZoneVisibility() {
+        makeDropZoneVisible = (appState.isDecompression && fileService.selectedArchive == nil) || (!appState.isDecompression && fileService.selectedFiles.isEmpty)
     }
     
     var dropTextView: some View {

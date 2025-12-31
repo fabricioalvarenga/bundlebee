@@ -12,34 +12,20 @@ struct DecompressView: View {
     @EnvironmentObject private var fileService: FileService
     @EnvironmentObject private var appState: AppState
     @State private var scale: CGFloat = 1.0
-    @State private var frameHeight: CGFloat = 0.0
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Spacer()
-                headerView
-                Spacer()
-            }
+        VStack(spacing: 16) {
+            headerView
 
-            ZStack {
-                DropZoneView()
-                    .environmentObject(fileService)
-                    .environmentObject(appState)
-
+            DropZoneView(makeDropZoneVisible: fileService.selectedArchive == nil) {
                 FileRowView(url: fileService.selectedArchive) {
                     fileService.selectedArchive = nil
                 }
                 .opacity(fileService.selectedArchive == nil ? 0 : 1)
-                .frame(height: fileService.selectedArchive == nil ? 0 : nil)
             }
-            .frame(height: frameHeight)
-            .animation(.spring(duration: 0.5).delay(0.5), value: fileService.selectedArchive) // Essa animaçõa es
-            .onChange(of: fileService.selectedArchive) { _, newValue in
-                withAnimation(.spring(duration: 0.5).delay(0.5)) {
-                    frameHeight = newValue == nil ? 220 : 56
-                }
-            }
+            .environmentObject(fileService)
+            .environmentObject(appState)
+            .animation(.default, value: fileService.selectedArchive)
 
             Divider()
                 .foregroundStyle(colorScheme == .dark ? .white.opacity(0.5) : .black.opacity(0.5))
@@ -48,7 +34,6 @@ struct DecompressView: View {
         }
         .onAppear {
             appState.isDecompression = true
-            frameHeight = fileService.selectedArchive == nil ? 220 : 56
         }
         .toolbar {
             CustomToolbar<ExtractOption, ExtractOption>(
@@ -69,8 +54,7 @@ struct DecompressView: View {
     private var headerView: some View {
         HStack {
             Text(
-                fileService.selectedArchive == nil
-                    ? "No Archive Selected" : "Archive Selected"
+                fileService.selectedArchive == nil ? "No Archive Selected" : "Archive Selected"
             )
             .scaleEffect(scale)
         }
@@ -104,13 +88,5 @@ struct DecompressView: View {
                 }
             }
         }
-    }
-}
-
-struct FileRowSize: PreferenceKey {
-    static var defaultValue: CGSize = .zero
-    
-    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
-        value = nextValue()
     }
 }

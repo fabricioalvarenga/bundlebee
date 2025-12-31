@@ -23,14 +23,12 @@ struct CompressView: View {
                 Spacer()
             }
                 
-            ZStack {
-                DropZoneView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .environmentObject(fileService)
-                    .environmentObject(appState)
-
+            DropZoneView(makeDropZoneVisible: fileService.selectedFiles.isEmpty) {
                 selectedFilesView
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .environmentObject(fileService)
+            .environmentObject(appState)
 
             Divider()
                 .foregroundStyle(colorScheme == .dark ? .white.opacity(0.5) : .black.opacity(0.5))
