@@ -13,12 +13,12 @@ import AppKit
 @main
 struct BundleBeeApp: App {
     @StateObject private var appState = AppState.shared
-    @StateObject private var archiveManager = ArchiveManager()
+    @StateObject private var fileService = FileService()
 
     var body: some Scene {
         Window("", id: "BundleBee") {
             ContentView()
-                .environmentObject(archiveManager)
+                .environmentObject(fileService)
                 .environmentObject(appState)
         }
         .windowStyle(.hiddenTitleBar)

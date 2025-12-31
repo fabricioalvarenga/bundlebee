@@ -11,7 +11,7 @@ import SwiftUI
 // TODO: Animar a inserção e exclusão de arquivos na "drop zone"
 struct CompressView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @EnvironmentObject private var archiveManager: ArchiveManager
+    @EnvironmentObject private var fileService: FileService
     @EnvironmentObject private var appState: AppState
     @State private var scale = 1.0
 
@@ -26,7 +26,7 @@ struct CompressView: View {
             ZStack {
                 DropZoneView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .environmentObject(archiveManager)
+                    .environmentObject(fileService)
                     .environmentObject(appState)
 
                 selectedFilesView
@@ -40,7 +40,7 @@ struct CompressView: View {
         .toolbar {
             CustomToolbar<CompressionFormat, CompressionMode>(
                 mainActionButtonHelp: "Compress selected files",
-                mainActionButtonDisabled: archiveManager.selectedFiles.isEmpty,
+                mainActionButtonDisabled: fileService.selectedFiles.isEmpty,
                 selectButtonHelp: "Select files",
                 menuHelp: "Select compression format and mode",
                 menuDisabled: false,
@@ -49,12 +49,12 @@ struct CompressView: View {
                 titleOfSecondMenuSection: "Select compression mode",
                 selectedItemOfSecondMenuSection: .fast,
                 trashButonHelp: "Clear selection",
-                trashButtonDisabled: archiveManager.selectedFiles.isEmpty,
-                mainActionButtonAction: { archiveManager.compress() },
-                selectButtonAction: { archiveManager.selectFiles() },
-                trashButtonAction: { archiveManager.selectedFiles.removeAll() },
-                onSelectItemOfFirstMenuSection: { archiveManager.selectedCompressionFormat = $0 },
-                onSelectItemOfSecondMenuSection: { archiveManager.selectedCompressionMode = $0 }
+                trashButtonDisabled: fileService.selectedFiles.isEmpty,
+                mainActionButtonAction: { fileService.compress() },
+                selectButtonAction: { fileService.selectFiles() },
+                trashButtonAction: { fileService.selectedFiles.removeAll() },
+                onSelectItemOfFirstMenuSection: { fileService.selectedCompressionFormat = $0 },
+                onSelectItemOfSecondMenuSection: { fileService.selectedCompressionMode = $0 }
             )
         }
         .onAppear {
@@ -64,9 +64,9 @@ struct CompressView: View {
 
     private var headerView: some View {
         HStack {
-            Text(archiveManager.selectedFiles.isEmpty ? "No File Selected" : "\(archiveManager.selectedFiles.count) Files Selected")
+            Text(fileService.selectedFiles.isEmpty ? "No File Selected" : "\(fileService.selectedFiles.count) Files Selected")
                 .scaleEffect(scale)
-                .onChange(of: archiveManager.selectedFiles.count) { _, _ in
+                .onChange(of: fileService.selectedFiles.count) { _, _ in
                     withAnimation(.spring(duration: 0.5)) {
                         scale = 1.3
                     }
@@ -85,9 +85,9 @@ struct CompressView: View {
     private var selectedFilesView: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                ForEach(archiveManager.selectedFiles, id: \.self) { file in
+                ForEach(fileService.selectedFiles, id: \.self) { file in
                     FileRowView(url: file) {
-                        archiveManager.selectedFiles.removeAll { $0 == file }
+                        fileService.selectedFiles.removeAll { $0 == file }
                     }
                 }
             }
@@ -102,7 +102,7 @@ struct CompressView: View {
                 .labelStyle(.titleAndIcon)
             
             HStack {
-                if let folder = archiveManager.compressionDestinationFolder?.path {
+                if let folder = fileService.compressionDestinationFolder?.path {
                     Text(folder)
                         .lineLimit(1)
                         .foregroundStyle(.secondary)
@@ -111,7 +111,7 @@ struct CompressView: View {
                 Spacer()
                 
                 Button {
-                    archiveManager.selectDestinationFolder()
+                    fileService.selectDestinationFolder()
                 } label: {
                     Image(systemName: "ellipsis")
                 }

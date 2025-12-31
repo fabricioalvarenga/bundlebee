@@ -9,11 +9,11 @@ import SwiftUI
 
 struct DropZoneView: View {
     @EnvironmentObject private var appState: AppState
-    @EnvironmentObject private var archiveManager: ArchiveManager
+    @EnvironmentObject private var fileService: FileService
 
     var body: some View {
         ZStack {
-            let opacity = (appState.isDecompression && archiveManager.selectedArchive == nil) || (!appState.isDecompression && archiveManager.selectedFiles.isEmpty) ? 1.0 : 0.0
+            let opacity = (appState.isDecompression && fileService.selectedArchive == nil) || (!appState.isDecompression && fileService.selectedFiles.isEmpty) ? 1.0 : 0.0
             
             VStack(spacing: 20) {
                 dropTextView
@@ -28,7 +28,7 @@ struct DropZoneView: View {
             backgroundView
         }
         .onDrop(of: [.fileURL], isTargeted: $appState.isDragging) { providers in
-            archiveManager.handleDrop(providers: providers)
+            fileService.handleDrop(providers: providers)
         }
     }
     

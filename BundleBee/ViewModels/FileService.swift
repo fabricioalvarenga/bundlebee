@@ -8,7 +8,7 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
-class ArchiveManager: ObservableObject {
+class FileService: ObservableObject {
     @Published var selectedFiles: [URL] = []
     @Published var selectedArchive: URL?
     @Published var selectedCompressionFormat: CompressionFormat = .zip

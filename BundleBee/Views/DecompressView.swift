@@ -9,7 +9,7 @@ import SwiftUI
 
 struct DecompressView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @EnvironmentObject private var archiveManager: ArchiveManager
+    @EnvironmentObject private var fileService: FileService
     @EnvironmentObject private var appState: AppState
     @State private var scale: CGFloat = 1.0
     @State private var frameHeight: CGFloat = 0.0
@@ -24,18 +24,18 @@ struct DecompressView: View {
 
             ZStack {
                 DropZoneView()
-                    .environmentObject(archiveManager)
+                    .environmentObject(fileService)
                     .environmentObject(appState)
 
-                FileRowView(url: archiveManager.selectedArchive) {
-                    archiveManager.selectedArchive = nil
+                FileRowView(url: fileService.selectedArchive) {
+                    fileService.selectedArchive = nil
                 }
-                .opacity(archiveManager.selectedArchive == nil ? 0 : 1)
-                .frame(height: archiveManager.selectedArchive == nil ? 0 : nil)
+                .opacity(fileService.selectedArchive == nil ? 0 : 1)
+                .frame(height: fileService.selectedArchive == nil ? 0 : nil)
             }
             .frame(height: frameHeight)
-            .animation(.spring(duration: 0.5).delay(0.5), value: archiveManager.selectedArchive) // Essa animaçõa es
-            .onChange(of: archiveManager.selectedArchive) { _, newValue in
+            .animation(.spring(duration: 0.5).delay(0.5), value: fileService.selectedArchive) // Essa animaçõa es
+            .onChange(of: fileService.selectedArchive) { _, newValue in
                 withAnimation(.spring(duration: 0.5).delay(0.5)) {
                     frameHeight = newValue == nil ? 220 : 56
                 }
@@ -48,20 +48,20 @@ struct DecompressView: View {
         }
         .onAppear {
             appState.isDecompression = true
-            frameHeight = archiveManager.selectedArchive == nil ? 220 : 56
+            frameHeight = fileService.selectedArchive == nil ? 220 : 56
         }
         .toolbar {
             CustomToolbar<ExtractOption, ExtractOption>(
                 mainActionButtonHelp: "Extract selected archive",
-                mainActionButtonDisabled: archiveManager.selectedArchive == nil,
+                mainActionButtonDisabled: fileService.selectedArchive == nil,
                 selectButtonHelp: "Select archive",
                 selectedItemOfFirstMenuSection: .empty,
                 selectedItemOfSecondMenuSection: .empty,
                 trashButonHelp: "Clear selection",
-                trashButtonDisabled: archiveManager.selectedArchive == nil,
-                mainActionButtonAction: { archiveManager.extract() },
-                selectButtonAction: { archiveManager.selectFiles() },
-                trashButtonAction: { archiveManager.selectedArchive = nil }
+                trashButtonDisabled: fileService.selectedArchive == nil,
+                mainActionButtonAction: { fileService.extract() },
+                selectButtonAction: { fileService.selectFiles() },
+                trashButtonAction: { fileService.selectedArchive = nil }
             )
         }
     }
@@ -69,14 +69,14 @@ struct DecompressView: View {
     private var headerView: some View {
         HStack {
             Text(
-                archiveManager.selectedArchive == nil
+                fileService.selectedArchive == nil
                     ? "No Archive Selected" : "Archive Selected"
             )
             .scaleEffect(scale)
         }
         .font(.title)
         .fontWeight(.semibold)
-        .onChange(of: archiveManager.selectedArchive) { _, newValue in
+        .onChange(of: fileService.selectedArchive) { _, newValue in
             withAnimation(.easeOut(duration: 0.5)) { scale = 1.3 }
             withAnimation(.easeIn(duration: 0.5).delay(0.5)) { scale = 1.0 }
         }
@@ -89,7 +89,7 @@ struct DecompressView: View {
                 .labelStyle(.titleAndIcon)
 
             HStack {
-                if let folder = archiveManager.decompressionDestinationFolder?.path {
+                if let folder = fileService.decompressionDestinationFolder?.path {
                     Text(folder)
                         .lineLimit(1)
                         .foregroundStyle(.secondary)
@@ -98,11 +98,19 @@ struct DecompressView: View {
                 Spacer()
 
                 Button {
-                    archiveManager.selectDestinationFolder()
+                    fileService.selectDestinationFolder()
                 } label: {
                     Image(systemName: "ellipsis")
                 }
             }
         }
+    }
+}
+
+struct FileRowSize: PreferenceKey {
+    static var defaultValue: CGSize = .zero
+    
+    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
+        value = nextValue()
     }
 }

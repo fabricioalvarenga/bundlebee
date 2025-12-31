@@ -9,30 +9,30 @@ import SwiftUI
 
 struct MainContentView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @EnvironmentObject private var archiveManager: ArchiveManager
+    @EnvironmentObject private var fileService: FileService
     @EnvironmentObject private var appState: AppState
     
     var body: some View {
         ZStack {
-            if colorScheme == .light {
-                Color.lightBackground
-                    .ignoresSafeArea()
-            } else {
-                Color.darkBackground
-                    .ignoresSafeArea()
-            }
+//            if colorScheme == .light {
+//                Color.lightBackground
+//                    .ignoresSafeArea()
+//            } else {
+//                Color.darkBackground
+//                    .ignoresSafeArea()
+//            }
             
-            StainView()
+//            StainView()
             
             GlassCardView {
                 switch appState.selectedTab {
                 case .compress:
                     CompressView()
-                        .environmentObject(archiveManager)
+                        .environmentObject(fileService)
                         .environmentObject(appState)
                 case .decompress:
                     DecompressView()
-                        .environmentObject(archiveManager)
+                        .environmentObject(fileService)
                         .environmentObject(appState)
                 case .view:
                     ViewArchiveView()
