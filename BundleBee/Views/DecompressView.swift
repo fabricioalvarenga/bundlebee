@@ -51,7 +51,7 @@ struct DecompressView: View {
         }
         .onChange(of: fileService.extractionResult) { _, _ in
             switch fileService.extractionResult {
-            case .success(let url): print(url)
+            case .success(let url): print("success: \(url)")
             case .failure(let error): print(error.localizedDescription)
             default: print(fileService.extractionResult)
             }
