@@ -49,6 +49,13 @@ struct DecompressView: View {
                 trashButtonAction: { fileService.selectedArchive = nil }
             )
         }
+        .onChange(of: fileService.extractionResult) { _, _ in
+            switch fileService.extractionResult {
+            case .success(let url): print(url)
+            case .failure(let error): print(error.localizedDescription)
+            default: print(fileService.extractionResult)
+            }
+        }
     }
 
     private var headerView: some View {

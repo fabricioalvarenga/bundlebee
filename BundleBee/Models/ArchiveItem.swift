@@ -6,3 +6,14 @@
 //
 
 import Foundation
+
+struct ArchiveItem: Identifiable {
+    let id = UUID()
+    let name: String
+    let size: Int64
+    let isDirectory: Bool
+    
+    var formmatedSize: String {
+        ByteCountFormatter.string(fromByteCount: size, countStyle: .file)
+    }
+}

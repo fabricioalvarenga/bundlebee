@@ -15,6 +15,7 @@ class FileService: ObservableObject {
     @Published var selectedCompressionMode: CompressionMode = .fast
     @Published var compressionDestinationFolder = FileManager.default.urls(for: .documentationDirectory, in: .userDomainMask).first
     @Published var decompressionDestinationFolder = FileManager.default.urls(for: .documentationDirectory, in: .userDomainMask).first
+    @Published var extractionResult: Result<URL, ArchiveError>?
     private var appState = AppState.shared
     
     func handleDrop(providers: [NSItemProvider]) -> Bool {
@@ -106,6 +107,21 @@ class FileService: ObservableObject {
     }
     
     func extract() {
+        extractionResult = nil
+        
+        guard let selectedArchive else {
+            extractionResult = .failure(ArchiveError.invalidArchive)
+            return
+        }
+        
+        Task {
+            do {
+                let extractedURL = try await ArchiveManager.shared.extractArchive(from: selectedArchive, to: decompressionDestinationFolder)
+                await MainActor.run { extractionResult = .success(extractedURL) }
+            } catch let error as ArchiveError {
+                await MainActor.run { extractionResult = .failure(error) }
+            }
+        }
     }
     
     private func isArchiveFile(_ url: URL) -> Bool {
