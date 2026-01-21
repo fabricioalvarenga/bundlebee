@@ -49,13 +49,13 @@ struct DecompressView: View {
                 trashButtonAction: { fileService.selectedArchive = nil }
             )
         }
-        // TODO: Verificar outra forma de tratar o resultado, que não seja via "onChange"
-        .onChange(of: fileService.extractionResult) { _, _ in
+        .onChange(of: fileService.extractionResult) { _, newValue in
+            guard let newValue else { return }
+            
             // TODO: Necessário mostrar mensagem na tela informando ao usuário sobre o erro ocorrido
-            switch fileService.extractionResult {
+            switch newValue {
             case .success(let url): print("success: \(url)")
             case .failure(let error): print(error.localizedDescription)
-            default: print("Unknow error.")
             }
         }
     }
