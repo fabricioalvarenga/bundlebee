@@ -14,16 +14,6 @@ struct MainContentView: View {
     
     var body: some View {
         ZStack {
-//            if colorScheme == .light {
-//                Color.lightBackground
-//                    .ignoresSafeArea()
-//            } else {
-//                Color.darkBackground
-//                    .ignoresSafeArea()
-//            }
-            
-//            StainView()
-            
             GlassCardView {
                 switch appState.selectedTab {
                 case .compress:
@@ -41,6 +31,7 @@ struct MainContentView: View {
                 }
             }
             .padding()
+            .animation(.linear(duration: 0.25), value: appState.selectedTab)
         }
     }
 }
