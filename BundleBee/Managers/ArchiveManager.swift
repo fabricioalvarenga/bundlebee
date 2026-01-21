@@ -19,35 +19,27 @@ class ArchiveManager {
         progressHandler: ((Double) -> Void)? = nil
     ) async throws -> URL {
         let archiveName = sourceURL.deletingPathExtension().lastPathComponent
+        var destination = destinationURL ?? sourceURL.deletingLastPathComponent()
         
-        // Sandbox access
-        let baseURL = try {
-            let initialURL = destinationURL ?? sourceURL.deletingLastPathComponent()
-            if let bookmark = loadBookmark(for: initialURL) {
-                return try resolveBookmark(bookmark)
-            }
-            return initialURL
-        }()
-        
-        
-        let sandboxAccess = baseURL.startAccessingSecurityScopedResource()
-        if !sandboxAccess { throw ArchiveError.accessDeniedToFolder(baseURL.path(percentEncoded: false)) }
+        let sandboxAccess = destination.startAccessingSecurityScopedResource()
+        if !sandboxAccess { throw ArchiveError.accessDeniedToFolder(destination.path(percentEncoded: false)) }
         defer {
             if sandboxAccess {
-                baseURL.stopAccessingSecurityScopedResource()
+                destination.stopAccessingSecurityScopedResource()
             }
         }
         
         // Try creating a folder that doesn't already exist, with a suffix ranging from 2 to 99.
-        var destination = baseURL.appending(path: archiveName)
+        destination = destination.appending(path: archiveName)
         for count in 2..<100 {
             if FileManager.default.fileExists(atPath: destination.path) {
-                destination = baseURL.appending(path: "\(archiveName) [\(count)]")
+                destination = destination.deletingLastPathComponent()
+                destination = destination.appending(path: "\(archiveName) [\(count)]")
                 continue
             }
             break
         }
-           
+          
         do {
             try FileManager.default.createDirectory(at: destination, withIntermediateDirectories: true)
         } catch (let error) {
