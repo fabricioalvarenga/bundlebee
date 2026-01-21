@@ -42,8 +42,7 @@ class ArchiveManager {
           
         do {
             try FileManager.default.createDirectory(at: destination, withIntermediateDirectories: true)
-        } catch (let error) {
-            print(error.localizedDescription)
+        } catch {
             throw ArchiveError.cannotCreateFolder(destination.path(percentEncoded: false))
         }
         
@@ -85,11 +84,8 @@ class ArchiveManager {
         do {
             try process.run()
             process.waitUntilExit()
+            
             let status = process.terminationStatus
-            
-            print(arguments)
-            print(status)
-            
             return status == 0
         } catch {
             // TODO: Tratar erro. Talvez marcar a função com "throws"
