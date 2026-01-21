@@ -8,7 +8,7 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
-class FileService: ObservableObject {
+class FileServiceViewModel: ObservableObject {
     @Published var selectedFiles: [URL] = []
     @Published var selectedArchive: URL?
     @Published var selectedCompressionFormat: CompressionFormat = .zip
@@ -73,32 +73,13 @@ class FileService: ObservableObject {
         
         let response = panel.runModal()
         
-        let folder: URL?
-        
-        if response == .OK {
-            folder = panel.url
-        } else {
-            folder = FileManager.default.urls(for: .documentationDirectory, in: .userDomainMask).first
-        }
-        
-        if appState.isDecompression {
-            decompressionDestinationFolder = folder
-        } else {
-            compressionDestinationFolder = folder
-        }
-    }
-    
-    func handleSelectedFiles(_ urls: [URL]) {
-        if !urls.isEmpty {
-            appState.pendingArchiveToOpen = nil
-            appState.pendingFilesToCompress?.removeAll()
+        if response == .OK,
+           let url  = panel.url {
             
             if appState.isDecompression {
-                selectedArchive = urls.filter { isArchiveFile($0) }.first
+                decompressionDestinationFolder = url
             } else {
-                // Filters out all existing files in 'selectedFiles' so that they are not selected more than once.
-                let filteredUrls = urls.filter { !selectedFiles.contains($0) }
-                selectedFiles.append(contentsOf: filteredUrls)
+                compressionDestinationFolder = url
             }
         }
     }
@@ -120,6 +101,21 @@ class FileService: ObservableObject {
                 await MainActor.run { extractionResult = .success(extractedURL) }
             } catch let error as ArchiveError {
                 await MainActor.run { extractionResult = .failure(error) }
+            }
+        }
+    }
+    
+    private func handleSelectedFiles(_ urls: [URL]) {
+        if !urls.isEmpty {
+            appState.pendingArchiveToOpen = nil
+            appState.pendingFilesToCompress?.removeAll()
+            
+            if appState.isDecompression {
+                selectedArchive = urls.filter { isArchiveFile($0) }.first
+            } else {
+                // Filters out all existing files in 'selectedFiles' so that they are not selected more than once.
+                let filteredUrls = urls.filter { !selectedFiles.contains($0) }
+                selectedFiles.append(contentsOf: filteredUrls)
             }
         }
     }
