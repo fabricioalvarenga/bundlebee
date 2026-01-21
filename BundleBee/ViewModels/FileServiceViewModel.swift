@@ -64,18 +64,19 @@ class FileServiceViewModel: ObservableObject {
     }
     
     func selectDestinationFolder() {
-        let panel = NSOpenPanel()
-        
-        panel.canChooseFiles = false
-        panel.canChooseDirectories = true
-        panel.allowsMultipleSelection = false
-        panel.canCreateDirectories = true
-        
-        let response = panel.runModal()
-        
-        if response == .OK,
-           let url  = panel.url {
-            
+//        let panel = NSOpenPanel()
+//        
+//        panel.canChooseFiles = false
+//        panel.canChooseDirectories = true
+//        panel.allowsMultipleSelection = false
+//        panel.canCreateDirectories = true
+//        
+//        let response = panel.runModal()
+//        
+//        if response == .OK,
+//           let url  = panel.url {
+//
+        if let url = ArchiveManager.shared.selectDestinationFolder() {
             if appState.isDecompression {
                 decompressionDestinationFolder = url
             } else {

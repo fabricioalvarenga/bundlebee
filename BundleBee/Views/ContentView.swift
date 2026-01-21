@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @EnvironmentObject private var fileService: FileService
+    @EnvironmentObject private var fileService: FileServiceViewModel
     @EnvironmentObject private var appState: AppState
     
     var body: some View {

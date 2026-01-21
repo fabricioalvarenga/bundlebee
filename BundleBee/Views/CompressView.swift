@@ -11,7 +11,7 @@ import SwiftUI
 // TODO: Animar a inserção e exclusão de arquivos na "drop zone"
 struct CompressView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @EnvironmentObject private var fileService: FileService
+    @EnvironmentObject private var fileService: FileServiceViewModel
     @EnvironmentObject private var appState: AppState
     @State private var scale = 1.0
 

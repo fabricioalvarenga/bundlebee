@@ -9,7 +9,7 @@ import SwiftUI
 
 struct DecompressView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @EnvironmentObject private var fileService: FileService
+    @EnvironmentObject private var fileService: FileServiceViewModel
     @EnvironmentObject private var appState: AppState
     @State private var scale: CGFloat = 1.0
     
@@ -49,11 +49,13 @@ struct DecompressView: View {
                 trashButtonAction: { fileService.selectedArchive = nil }
             )
         }
+        // TODO: Verificar outra forma de tratar o resultado, que não seja via "onChange"
         .onChange(of: fileService.extractionResult) { _, _ in
+            // TODO: Necessário mostrar mensagem na tela informando ao usuário sobre o erro ocorrido
             switch fileService.extractionResult {
             case .success(let url): print("success: \(url)")
             case .failure(let error): print(error.localizedDescription)
-            default: print(fileService.extractionResult)
+            default: print("Unknow error.")
             }
         }
     }

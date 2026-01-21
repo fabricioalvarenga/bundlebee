@@ -16,6 +16,8 @@ enum ArchiveError: LocalizedError, Equatable {
     case invalidArchive
     case extractionFailed
     case cannotReadArchive
+    case cannotCreateFolder(String)
+    case accessDeniedToFolder(String)
     case fileSystemError(Error)
     case passwordRequired
     case incorrectPassword
@@ -27,6 +29,8 @@ enum ArchiveError: LocalizedError, Equatable {
         case .invalidArchive: "Invalid archive."
         case .extractionFailed: "Extraction failed."
         case .cannotReadArchive: "Cannot read archive."
+        case .cannotCreateFolder(let path): "Cannot create folder: \(path)."
+        case .accessDeniedToFolder(let path): "Access denied to folder: \(path)."
         case .fileSystemError(let error): "File system error: \(error.localizedDescription)."
         case .passwordRequired: "Password required."
         case .incorrectPassword: "Incorrect password."

@@ -13,7 +13,7 @@ import AppKit
 @main
 struct BundleBeeApp: App {
     @StateObject private var appState = AppState.shared
-    @StateObject private var fileService = FileService()
+    @StateObject private var fileService = FileServiceViewModel()
 
     var body: some Scene {
         Window("", id: "BundleBee") {

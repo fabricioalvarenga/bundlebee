@@ -6,3 +6,10 @@
 //
 
 import Foundation
+
+struct FolderBookmark: Codable, Identifiable {
+    let id: URL
+    let data: Data
+    
+    static let key = "com.alvarenga.fabricio.BundleBee.securityScopedFolderBookmarks"
+}

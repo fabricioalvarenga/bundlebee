@@ -9,7 +9,7 @@ import SwiftUI
 
 struct DropZoneView<Content: View>: View {
     @EnvironmentObject private var appState: AppState
-    @EnvironmentObject private var fileService: FileService
+    @EnvironmentObject private var fileService: FileServiceViewModel
     @State var makeDropZoneVisible: Bool
     
     @ViewBuilder
@@ -66,6 +66,7 @@ struct DropZoneView<Content: View>: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
+        .padding(.top)
     }
     
     var supportedFilesView: some View {
@@ -78,6 +79,7 @@ struct DropZoneView<Content: View>: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
+        .padding(.bottom)
     }
     
     var backgroundView: some View {

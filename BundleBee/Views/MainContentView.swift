@@ -9,7 +9,7 @@ import SwiftUI
 
 struct MainContentView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @EnvironmentObject private var fileService: FileService
+    @EnvironmentObject private var fileService: FileServiceViewModel
     @EnvironmentObject private var appState: AppState
     
     var body: some View {
