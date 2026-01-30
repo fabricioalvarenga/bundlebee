@@ -45,6 +45,11 @@ struct DropZoneView<Content: View>: View {
                 updateDropZoneVisibility()
             }
         }
+        .onChange(of: fileService.selectedFiles) {
+            withAnimation {
+                updateDropZoneVisibility()
+            }
+        }
     }
     
     func updateDropZoneVisibility() {
