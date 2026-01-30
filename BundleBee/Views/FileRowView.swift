@@ -52,6 +52,7 @@ struct FileRowView: View {
                     .foregroundStyle(.secondary)
             }
             .buttonStyle(.plain)
+            .padding(.trailing, 4)
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
