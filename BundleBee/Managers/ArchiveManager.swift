@@ -7,10 +7,38 @@
 
 import AppKit
 
+// TODO: Trabalhar com arquivos protegidos por senha e implementar barra de progresso
+// TODO: Tratar sobre a compactação/descompactação assíncrona com "Task.detached"
+// TODO: Mostrar barra de progresso na compactação/descompactação
 class ArchiveManager {
     static let shared = ArchiveManager()
     
     private init() {}
+    
+    func createArchive(
+        from sourceURLs: [URL],
+        to destinationURL: URL? = nil,
+        format: CompressionFormat,
+        password: String? = nil,
+        progressHandler: ((Double) -> Void)? = nil
+    ) async throws -> URL? {
+        guard let destination = destinationURL else { throw ArchiveError.invalidDestinationFolder }
+        
+        let sandboxAccess = destination.startAccessingSecurityScopedResource()
+        if !sandboxAccess { throw ArchiveError.accessDeniedToFolder(destination.path(percentEncoded: false)) }
+        defer {
+            if sandboxAccess {
+                destination.stopAccessingSecurityScopedResource()
+            }
+        }
+        
+        let success = zipUsingProcess(from: sourceURLs, to: destination)
+        
+        guard success else { throw ArchiveError.extractionFailed }
+            
+        let compressionDestination = destination
+        return await MainActor.run { compressionDestination }
+    }
     
     func extractArchive(
         from sourceURL: URL,
@@ -18,8 +46,9 @@ class ArchiveManager {
         password: String? = nil,
         progressHandler: ((Double) -> Void)? = nil
     ) async throws -> URL {
+        guard let destination = destinationURL else { throw ArchiveError.invalidDestinationFolder }
+        
         let archiveName = sourceURL.deletingPathExtension().lastPathComponent
-        var destination = destinationURL ?? sourceURL.deletingLastPathComponent()
         
         let sandboxAccess = destination.startAccessingSecurityScopedResource()
         if !sandboxAccess { throw ArchiveError.accessDeniedToFolder(destination.path(percentEncoded: false)) }
@@ -30,57 +59,86 @@ class ArchiveManager {
         }
         
         // Try creating a folder that doesn't already exist, with a suffix ranging from 2 to 99.
-        destination = destination.appending(path: archiveName)
+        var extractionURL = destination.appending(path: archiveName)
         for count in 2..<100 {
-            if FileManager.default.fileExists(atPath: destination.path) {
-                destination = destination.deletingLastPathComponent()
-                destination = destination.appending(path: "\(archiveName) [\(count)]")
+            if FileManager.default.fileExists(atPath: extractionURL.path) {
+                extractionURL = destination.deletingLastPathComponent()
+                extractionURL = destination.appending(path: "\(archiveName) [\(count)]")
                 continue
             }
             break
         }
           
         do {
-            try FileManager.default.createDirectory(at: destination, withIntermediateDirectories: true)
+            try FileManager.default.createDirectory(at: extractionURL, withIntermediateDirectories: true)
         } catch {
-            throw ArchiveError.cannotCreateFolder(destination.path(percentEncoded: false))
+            throw ArchiveError.cannotCreateFolder(extractionURL.path(percentEncoded: false))
         }
         
-        let success = self.unzipUsingProcess(
-            sourceURL: sourceURL,
-            destinationURL: destination,
-            password: password,
-            progressHandler: progressHandler
-        )
+        let success = unzipUsingProcess(sourceURL: sourceURL, destinationURL: extractionURL)
         
         guard success else { throw ArchiveError.extractionFailed }
             
-        let finalDestination = destination
+        let finalDestination = extractionURL
         return await MainActor.run { finalDestination }
     }
     
+    // TODO: Trabalhar com arquivos protegidos por senha e implementar barra de progresso
+    // TODO: Tratar sobre a compactação assíncrona com "Task.detached"
+    // TODO: Trabalhar com diferentes modos de compressão (opções -1 e -9 do zip)
+    private func zipUsingProcess(
+        from sourceURLs: [URL],
+        to destinationURL: URL,
+        password: String? = nil,
+        compressionLevel: CompressionMode = .normal,
+        progressHandler: ((Double) -> Void)? = nil
+    ) -> Bool {
+        let destination = destinationURL.appending(path: "bundlebee_archive.zip") // TODO: Necessário dar opção para o usuário escolher o nome do arquivo e colocar automaticamente a extensão de acordo com o tipo de compressão escolhida
+        
+        var arguments = ["-q"] // Quiet mode
+        arguments.append("-r") // Recursion
+
+        if let pwd = password, !pwd.isEmpty {
+            arguments.append(contentsOf: ["-P", pwd])
+        }
+       
+        arguments.append(destination.path)
+        arguments.append(contentsOf: sourceURLs.map { $0.path(percentEncoded: false) })
+        
+        let process = Process()
+        process.executableURL = URL(filePath: "/usr/bin/zip")
+        process.arguments = arguments
+        
+        let status = executeProcess(process)
+        return status
+    }
+
     private func unzipUsingProcess(
         sourceURL: URL,
         destinationURL: URL,
-        password: String?,
-        progressHandler: ((Double) -> Void)?
+        password: String? = nil,
+        progressHandler: ((Double) -> Void)? = nil
     ) -> Bool {
-        let process = Process()
-        process.executableURL = URL(filePath: "/usr/bin/unzip")
-        
         var arguments = ["-o"] // Overwrite if necessary
+        arguments.append("-q") // Quiet mode
         
         if let pwd = password, !pwd.isEmpty {
             arguments.append(contentsOf: ["-P", pwd])
         }
         
-        arguments.append("-q") // Quiet mode
         arguments.append(sourceURL.path)
         arguments.append("-d")
         arguments.append(destinationURL.path)
         
+        let process = Process()
+        process.executableURL = URL(filePath: "/usr/bin/unzip")
         process.arguments = arguments
         
+        let status = executeProcess(process)
+        return status
+    }
+    
+    private func executeProcess(_ process: Process) -> Bool {
         do {
             try process.run()
             process.waitUntilExit()
@@ -89,7 +147,7 @@ class ArchiveManager {
             return status == 0
         } catch {
             // TODO: Tratar erro. Talvez marcar a função com "throws"
-            print("Erro ao executar unzip: \(error)")
+            print("Erro ao executar: \(error)")
             return false
         }
     }

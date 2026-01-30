@@ -13,9 +13,10 @@ class FileServiceViewModel: ObservableObject {
     @Published var selectedArchive: URL?
     @Published var selectedCompressionFormat: CompressionFormat = .zip
     @Published var selectedCompressionMode: CompressionMode = .fast
-    @Published var compressionDestinationFolder = FileManager.default.urls(for: .documentationDirectory, in: .userDomainMask).first
-    @Published var decompressionDestinationFolder = FileManager.default.urls(for: .documentationDirectory, in: .userDomainMask).first
+    @Published var compressionDestinationFolder: URL?
+    @Published var decompressionDestinationFolder: URL?
     @Published var extractionResult: Result<URL, ArchiveError>?
+    @Published var compressionResult: Result<URL?, ArchiveError>?
     private var appState = AppState.shared
     
     func handleDrop(providers: [NSItemProvider]) -> Bool {
@@ -64,18 +65,6 @@ class FileServiceViewModel: ObservableObject {
     }
     
     func selectDestinationFolder() {
-//        let panel = NSOpenPanel()
-//        
-//        panel.canChooseFiles = false
-//        panel.canChooseDirectories = true
-//        panel.allowsMultipleSelection = false
-//        panel.canCreateDirectories = true
-//        
-//        let response = panel.runModal()
-//        
-//        if response == .OK,
-//           let url  = panel.url {
-//
         if let url = ArchiveManager.shared.selectDestinationFolder() {
             if appState.isDecompression {
                 decompressionDestinationFolder = url
@@ -86,6 +75,16 @@ class FileServiceViewModel: ObservableObject {
     }
     
     func compress() {
+        compressionResult = nil
+        
+        Task {
+            do {
+                let compressedURL = try await ArchiveManager.shared.createArchive(from: selectedFiles, to: compressionDestinationFolder, format: selectedCompressionFormat)
+                await MainActor.run { compressionResult = .success(compressedURL) }
+            } catch let error as ArchiveError {
+                await MainActor.run { compressionResult = .failure(error) }
+            }
+        }
     }
     
     func extract() {

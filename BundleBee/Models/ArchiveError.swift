@@ -21,6 +21,7 @@ enum ArchiveError: LocalizedError, Equatable {
     case fileSystemError(Error)
     case passwordRequired
     case incorrectPassword
+    case invalidDestinationFolder
     case unknown
     
     var errorDescription: String? {
@@ -34,6 +35,7 @@ enum ArchiveError: LocalizedError, Equatable {
         case .fileSystemError(let error): "File system error: \(error.localizedDescription)."
         case .passwordRequired: "Password required."
         case .incorrectPassword: "Incorrect password."
+        case .invalidDestinationFolder: "Invalid destination folder."
         case .unknown: "Unknown error."
         }
     }

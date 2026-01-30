@@ -54,6 +54,16 @@ struct CompressView: View {
         .onAppear {
             appState.isDecompression = false
         }
+        .onChange(of: fileService.compressionResult) { _, newValue in
+            guard let newValue else { return }
+            
+            // TODO: Necessário mostrar mensagem na tela informando ao usuário sobre o erro ocorrido
+            switch newValue {
+            case .success(let url): print("success: \(String(describing: url))")
+            case .failure(let error): print(error.localizedDescription)
+            }
+        }
+
     }
 
     private var headerView: some View {
