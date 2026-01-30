@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-// TODO: Use password to compress
 // TODO: Animar a inserção e exclusão de arquivos na "drop zone"
 struct CompressView: View {
     @Environment(\.colorScheme) private var colorScheme

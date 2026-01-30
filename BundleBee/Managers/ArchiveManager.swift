@@ -10,9 +10,9 @@ import AppKit
 // TODO: Trabalhar com arquivos protegidos por senha e implementar barra de progresso
 // TODO: Tratar sobre a compactação/descompactação assíncrona com "Task.detached"
 // TODO: Mostrar barra de progresso na compactação/descompactação
-// TODO: Ao selecionar o arquivo para descompressão ou o primeiro arquivo para compressão,
-//       verificar se é possível adicionar a pasta dele no "security bookmark" e,
-//       se sim, ela deve ser a "destionation folder" caso o usuário ainda não tenho escolhido nenhuma
+// TODO: Ao selecionar o arquivo para descompressão, verificar se a pasta onde ele se encontra
+//       está salva no bookmark. Se sim, colocá-la como destino. Para a compactação, proceder
+//       da mesma forma somente se todos os arquivos a serem compactados pertenceram à mesma pasta
 class ArchiveManager {
     static let shared = ArchiveManager()
     
@@ -36,10 +36,11 @@ class ArchiveManager {
         }
         
         // TODO: Necessário dar opção para o usuário escolher o nome do arquivo e
-        //       colocar automaticamente a extensão de acordo com o tipo de compressão escolhida
-        //       E caso o usuário escolha um nome de arquivo já existente, necessário dar
+        //       colocar automaticamente a extensão de acordo com a escolha do usuário
+        // TODO: Caso o usuário escolha um nome de arquivo já existente, necessário dar
         //       opção para que ele decida se vai apenas atualizar o arquivo (o processo 'zip', por exemplo, permite isso)
         //       ou se vai criar um novo
+        
         // Add a suffix to archive name if it already exists
         let archiveName = "bundlebee_archive"
         let compressionURL = addSuffix(to: destination.appending(path: archiveName), archiveExtension: "zip")
@@ -84,8 +85,6 @@ class ArchiveManager {
         return await MainActor.run { extractionURL }
     }
     
-    // TODO: Trabalhar com arquivos protegidos por senha e implementar barra de progresso
-    // TODO: Tratar sobre a compactação assíncrona com "Task.detached"
     // TODO: Trabalhar com diferentes modos de compressão (opções -1 e -9 do zip)
     private func zipUsingProcess(
         from sourceURLs: [URL],
@@ -94,7 +93,6 @@ class ArchiveManager {
         compressionLevel: CompressionMode = .normal,
         progressHandler: ((Double) -> Void)? = nil
     ) -> Bool {
-        // TODO: Necessário dar opção para o usuário escolher o nome do arquivo e colocar automaticamente a extensão de acordo com o tipo de compressão escolhida
         let destination = destinationURL
         
         var arguments = ["-q"] // Quiet mode
