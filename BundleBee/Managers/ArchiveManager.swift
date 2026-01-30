@@ -10,6 +10,9 @@ import AppKit
 // TODO: Trabalhar com arquivos protegidos por senha e implementar barra de progresso
 // TODO: Tratar sobre a compactação/descompactação assíncrona com "Task.detached"
 // TODO: Mostrar barra de progresso na compactação/descompactação
+// TODO: Ao selecionar o arquivo para descompressão ou o primeiro arquivo para compressão,
+//       verificar se é possível adicionar a pasta dele no "security bookmark" e,
+//       se sim, ela deve ser a "destionation folder" caso o usuário ainda não tenho escolhido nenhuma
 class ArchiveManager {
     static let shared = ArchiveManager()
     
@@ -32,12 +35,20 @@ class ArchiveManager {
             }
         }
         
-        let success = zipUsingProcess(from: sourceURLs, to: destination)
+        // TODO: Necessário dar opção para o usuário escolher o nome do arquivo e
+        //       colocar automaticamente a extensão de acordo com o tipo de compressão escolhida
+        //       E caso o usuário escolha um nome de arquivo já existente, necessário dar
+        //       opção para que ele decida se vai apenas atualizar o arquivo (o processo 'zip', por exemplo, permite isso)
+        //       ou se vai criar um novo
+        // Add a suffix to archive name if it already exists
+        let archiveName = "bundlebee_archive"
+        let compressionURL = addSuffix(to: destination.appending(path: archiveName), archiveExtension: "zip")
+        
+        let success = zipUsingProcess(from: sourceURLs, to: compressionURL)
         
         guard success else { throw ArchiveError.extractionFailed }
             
-        let compressionDestination = destination
-        return await MainActor.run { compressionDestination }
+        return await MainActor.run { compressionURL }
     }
     
     func extractArchive(
@@ -48,8 +59,6 @@ class ArchiveManager {
     ) async throws -> URL {
         guard let destination = destinationURL else { throw ArchiveError.invalidDestinationFolder }
         
-        let archiveName = sourceURL.deletingPathExtension().lastPathComponent
-        
         let sandboxAccess = destination.startAccessingSecurityScopedResource()
         if !sandboxAccess { throw ArchiveError.accessDeniedToFolder(destination.path(percentEncoded: false)) }
         defer {
@@ -58,17 +67,10 @@ class ArchiveManager {
             }
         }
         
-        // Try creating a folder that doesn't already exist, with a suffix ranging from 2 to 99.
-        var extractionURL = destination.appending(path: archiveName)
-        for count in 2..<100 {
-            if FileManager.default.fileExists(atPath: extractionURL.path) {
-                extractionURL = destination.deletingLastPathComponent()
-                extractionURL = destination.appending(path: "\(archiveName) [\(count)]")
-                continue
-            }
-            break
-        }
-          
+        // Add a suffix to folder name if it already exists
+        let archiveName = sourceURL.deletingPathExtension().lastPathComponent
+        let extractionURL = addSuffix(to: destination.appending(path: archiveName))
+        
         do {
             try FileManager.default.createDirectory(at: extractionURL, withIntermediateDirectories: true)
         } catch {
@@ -79,8 +81,7 @@ class ArchiveManager {
         
         guard success else { throw ArchiveError.extractionFailed }
             
-        let finalDestination = extractionURL
-        return await MainActor.run { finalDestination }
+        return await MainActor.run { extractionURL }
     }
     
     // TODO: Trabalhar com arquivos protegidos por senha e implementar barra de progresso
@@ -93,7 +94,8 @@ class ArchiveManager {
         compressionLevel: CompressionMode = .normal,
         progressHandler: ((Double) -> Void)? = nil
     ) -> Bool {
-        let destination = destinationURL.appending(path: "bundlebee_archive.zip") // TODO: Necessário dar opção para o usuário escolher o nome do arquivo e colocar automaticamente a extensão de acordo com o tipo de compressão escolhida
+        // TODO: Necessário dar opção para o usuário escolher o nome do arquivo e colocar automaticamente a extensão de acordo com o tipo de compressão escolhida
+        let destination = destinationURL
         
         var arguments = ["-q"] // Quiet mode
         arguments.append("-r") // Recursion
@@ -136,6 +138,25 @@ class ArchiveManager {
         
         let status = executeProcess(process)
         return status
+    }
+    
+    // Add a suffix to folder/archive name if it already exists
+    private func addSuffix(to url: URL, archiveExtension: String? = nil) -> URL {
+        let archiveName = url.lastPathComponent
+        var result = url
+        for count in 2..<100 {
+            if let archiveExtension {
+                result = result.appendingPathExtension(archiveExtension)
+            }
+            
+            if FileManager.default.fileExists(atPath: result.path(percentEncoded: false)) {
+                result = url.deletingLastPathComponent()
+                result = result.appending(path: "\(archiveName) [\(count)]")
+                continue
+            }
+            break
+        }
+        return result
     }
     
     private func executeProcess(_ process: Process) -> Bool {
